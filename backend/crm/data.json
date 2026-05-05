@@ -1,0 +1,30 @@
+{
+    "test_user_123": {
+        "session_id": "test_user_123",
+        "nombre": "Migue",
+        "carrera": "Derecho",
+        "producto_actual": "EGEL",
+        "etapa": "captura",
+        "estado": "cerrado",
+        "productos_interes": [
+            "EGEL"
+        ],
+        "historial": [
+            {
+                "fecha": "2026-05-05T15:44:32.776741",
+                "user": "Hola, precio",
+                "bot": "Hola Migue, el precio es $499"
+            }
+        ],
+        "ventas": [
+            {
+                "producto": "EGEL Derecho",
+                "carrera": "Derecho",
+                "precio": 499,
+                "fecha": "2026-05-05T15:44:32.783778"
+            }
+        ],
+        "fecha_creacion": "2026-05-05T15:44:32.763030",
+        "ultima_interaccion": "2026-05-05T15:44:32.769543"
+    }
+}

@@ -1,0 +1,283 @@
+<!--
+  webhooks/webchat_widget.html
+  Pega este bloque al final del <body> de tu sitio LIA
+  Reemplaza WEBHOOK_URL con tu URL real de n8n
+-->
+
+<style>
+  #lia-chat-btn {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    width: 56px;
+    height: 56px;
+    background: #1D9E75;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(29,158,117,0.35);
+    z-index: 9998;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  #lia-chat-btn:hover { transform: scale(1.08); box-shadow: 0 6px 20px rgba(29,158,117,0.45); }
+  #lia-chat-btn svg { width: 26px; height: 26px; fill: #fff; }
+
+  #lia-chat-box {
+    position: fixed;
+    bottom: 96px;
+    right: 28px;
+    width: 340px;
+    max-height: 480px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    z-index: 9999;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+    pointer-events: none;
+    transition: opacity 0.22s, transform 0.22s;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+  }
+  #lia-chat-box.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
+  }
+
+  #lia-chat-header {
+    background: #1D9E75;
+    color: #fff;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  #lia-chat-header .avatar {
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  #lia-chat-header .info { flex: 1; }
+  #lia-chat-header .name { font-weight: 600; font-size: 14px; }
+  #lia-chat-header .status { font-size: 11px; opacity: 0.85; }
+  #lia-chat-close {
+    background: none; border: none; color: #fff;
+    cursor: pointer; padding: 4px; opacity: 0.8;
+    font-size: 20px; line-height: 1;
+  }
+  #lia-chat-close:hover { opacity: 1; }
+
+  #lia-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: #f8f9fa;
+  }
+
+  .lia-msg {
+    max-width: 82%;
+    padding: 9px 12px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    line-height: 1.45;
+    word-break: break-word;
+  }
+  .lia-msg.bot {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+    color: #1a1a1a;
+  }
+  .lia-msg.user {
+    background: #1D9E75;
+    color: #fff;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+  }
+
+  .lia-typing {
+    display: flex;
+    gap: 4px;
+    padding: 10px 12px;
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
+    border-bottom-left-radius: 4px;
+    width: fit-content;
+    align-self: flex-start;
+  }
+  .lia-typing span {
+    width: 7px; height: 7px;
+    background: #aaa;
+    border-radius: 50%;
+    animation: lia-bounce 1.2s infinite;
+  }
+  .lia-typing span:nth-child(2) { animation-delay: 0.2s; }
+  .lia-typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes lia-bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-5px); }
+  }
+
+  #lia-chat-input-area {
+    padding: 10px 12px;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 8px;
+    background: #fff;
+  }
+  #lia-input {
+    flex: 1;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-size: 13.5px;
+    outline: none;
+    resize: none;
+    font-family: inherit;
+    line-height: 1.4;
+    max-height: 80px;
+    transition: border-color 0.15s;
+  }
+  #lia-input:focus { border-color: #1D9E75; }
+  #lia-send {
+    background: #1D9E75;
+    border: none;
+    border-radius: 50%;
+    width: 36px; height: 36px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  #lia-send:hover { background: #0F6E56; }
+  #lia-send svg { width: 16px; height: 16px; fill: #fff; }
+</style>
+
+<!-- Botón flotante -->
+<button id="lia-chat-btn" onclick="liaToggleChat()" aria-label="Abrir chat de LIA">
+  <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.37 5.06L2 22l4.94-1.37C8.42 21.5 10.15 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.57 0-3.04-.43-4.29-1.17l-.31-.18-3.17.88.88-3.17-.18-.31C4.43 15.04 4 13.57 4 12c0-4.42 3.58-8 8-8s8 3.58 8 8-3.58 8-8 8zm4.59-6.41c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.78.97-.15.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.51.11-.11.25-.29.37-.43.13-.14.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.41-.56-.42-.14 0-.31-.02-.47-.02-.17 0-.43.06-.66.31-.22.25-.86.84-.86 2.05 0 1.2.89 2.37 1.01 2.54.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.22-.16-.47-.28z"/></svg>
+</button>
+
+<!-- Ventana de chat -->
+<div id="lia-chat-box">
+  <div id="lia-chat-header">
+    <div class="avatar">🤖</div>
+    <div class="info">
+      <div class="name">LIA — Asistente EGEL</div>
+      <div class="status">● En línea</div>
+    </div>
+    <button class="lia-close" onclick="liaToggleChat()">✕</button>
+  </div>
+  <div id="lia-chat-messages"></div>
+  <div id="lia-chat-input-area">
+    <textarea id="lia-input" placeholder="Escribe aquí..." rows="1"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();liaSend()}"
+      oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+    <button id="lia-send" onclick="liaSend()">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+(function() {
+  // ── Configuración ──────────────────────────
+  const WEBHOOK_URL = 'http://localhost:5678/webhook/mensaje-entrante'; // ← cambia esto
+  const CANAL = 'web';
+
+  let sessionId = localStorage.getItem('lia_session') || ('web_' + Math.random().toString(36).slice(2));
+  localStorage.setItem('lia_session', sessionId);
+
+  let chatAbierto = false;
+  let primerMensaje = true;
+
+  // ── Funciones públicas ─────────────────────
+  window.liaToggleChat = function() {
+    chatAbierto = !chatAbierto;
+    document.getElementById('lia-chat-box').classList.toggle('open', chatAbierto);
+    if (chatAbierto && primerMensaje) {
+      primerMensaje = false;
+      setTimeout(() => liaRecibirMensaje('¡Hola! ¿Estás preparándote para el EGEL o apenas lo estás checando?'), 600);
+    }
+  };
+
+  window.liaSend = function() {
+    const input = document.getElementById('lia-input');
+    const texto = input.value.trim();
+    if (!texto) return;
+    
+    input.value = '';
+    input.style.height = 'auto';
+    
+    liaAgregarMensaje(texto, 'user');
+    liaEnviar(texto);
+  };
+
+  // ── Agregar mensaje al chat ────────────────
+  function liaAgregarMensaje(texto, tipo) {
+    const msgs = document.getElementById('lia-chat-messages');
+    const div = document.createElement('div');
+    div.className = `lia-msg ${tipo}`;
+    div.textContent = texto;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function liaRecibirMensaje(texto) {
+    liaAgregarMensaje(texto, 'bot');
+  }
+
+  function liaTyping(mostrar) {
+    const existente = document.getElementById('lia-typing-indicator');
+    const msgs = document.getElementById('lia-chat-messages');
+    if (mostrar && !existente) {
+      const div = document.createElement('div');
+      div.id = 'lia-typing-indicator';
+      div.className = 'lia-typing';
+      div.innerHTML = '<span></span><span></span><span></span>';
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+    } else if (!mostrar && existente) {
+      existente.remove();
+    }
+  }
+
+  // ── Enviar mensaje al webhook ──────────────
+  async function liaEnviar(mensaje) {
+    liaTyping(true);
+    try {
+      const res = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          canal: CANAL,
+          session_id: sessionId,
+          mensaje,
+        })
+      });
+      const data = await res.json();
+      liaTyping(false);
+      if (data.respuesta_agente) {
+        liaRecibirMensaje(data.respuesta_agente);
+      }
+    } catch (err) {
+      liaTyping(false);
+      liaRecibirMensaje('Ups, algo falló. Intenta de nuevo 🙏');
+      console.error('LIA chat error:', err);
+    }
+  }
+})();
+</script>

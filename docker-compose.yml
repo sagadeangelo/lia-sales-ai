@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+
+  # ─────────────────────────────────────────
+  # n8n — Orquestador de agentes
+  # ─────────────────────────────────────────
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: egel_n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678
+      - N8N_ENCRYPTION_KEY=lia_super_secret_key
+      - DB_TYPE=sqlite
+      - N8N_LOG_LEVEL=info
+      - EXECUTIONS_TIMEOUT=1800
+      - EXECUTIONS_TIMEOUT_MAX=3600
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./flujos:/home/node/.n8n/workflows
+    networks:
+      - egel_network
+
+  # ─────────────────────────────────────────
+  # Redis — Estado y sesiones
+  # ─────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: egel_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - egel_network
+
+  # ─────────────────────────────────────────
+  # Dashboard — Panel aprobación (Agente 6)
+  # ─────────────────────────────────────────
+  dashboard:
+    image: nginx:alpine
+    container_name: egel_dashboard
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    volumes:
+      - ./dashboard:/usr/share/nginx/html:ro
+    networks:
+      - egel_network
+
+volumes:
+  n8n_data:
+  redis_data:
+
+networks:
+  egel_network:
+    driver: bridge

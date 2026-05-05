@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIA — Panel de Cierres</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --teal: #1D9E75;
+    --teal-dark: #0F6E56;
+    --teal-light: #E1F5EE;
+    --amber: #BA7517;
+    --amber-light: #FAEEDA;
+    --red: #A32D2D;
+    --red-light: #FCEBEB;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-400: #9ca3af;
+    --gray-600: #4b5563;
+    --gray-900: #111827;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: var(--gray-50);
+    color: var(--gray-900);
+    min-height: 100vh;
+  }
+
+  header {
+    background: #fff;
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0 32px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: var(--teal);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 16px; font-weight: 600;
+  }
+  .logo-text { font-size: 15px; font-weight: 600; color: var(--gray-900); }
+  .logo-sub { font-size: 12px; color: var(--gray-400); font-weight: 400; }
+
+  .header-stats { display: flex; gap: 20px; }
+  .stat { text-align: center; }
+  .stat-num { font-size: 20px; font-weight: 600; color: var(--gray-900); }
+  .stat-label { font-size: 11px; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.05em; }
+
+  main { max-width: 900px; margin: 0 auto; padding: 32px 20px; }
+
+  h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+  .subtitle { color: var(--gray-400); font-size: 14px; margin-bottom: 28px; }
+
+  .lead-card {
+    background: #fff;
+    border-radius: var(--radius);
+    border: 1px solid var(--gray-200);
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .lead-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+
+  .lead-card.aprobado { opacity: 0.5; pointer-events: none; }
+
+  .lead-header {
+    padding: 18px 20px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--teal-light);
+    color: var(--teal-dark);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .lead-info { flex: 1; }
+  .lead-name { font-size: 16px; font-weight: 600; }
+  .lead-meta { font-size: 13px; color: var(--gray-600); margin-top: 3px; }
+
+  .badge {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .badge-caliente { background: #FEE2E2; color: #991B1B; }
+  .badge-tibio { background: var(--amber-light); color: var(--amber); }
+  .badge-frio { background: var(--gray-100); color: var(--gray-600); }
+  .badge-canal { background: var(--teal-light); color: var(--teal-dark); }
+
+  .lead-body {
+    padding: 0 20px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .detail { }
+  .detail-label { font-size: 11px; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+  .detail-value { font-size: 13.5px; font-weight: 500; color: var(--gray-900); }
+
+  .dolor-box {
+    grid-column: 1 / -1;
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 10px 12px;
+    border-left: 3px solid var(--gray-200);
+  }
+  .dolor-box .detail-label { margin-bottom: 4px; }
+  .dolor-box .detail-value { font-weight: 400; color: var(--gray-600); font-size: 13px; }
+
+  .propuesta-box {
+    grid-column: 1 / -1;
+    background: var(--teal-light);
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .propuesta-nombre { font-size: 14px; font-weight: 600; color: var(--teal-dark); }
+  .propuesta-precio { font-size: 20px; font-weight: 700; color: var(--teal-dark); font-family: 'DM Mono', monospace; }
+
+  .chat-preview {
+    padding: 0 20px 16px;
+    border-top: 1px solid var(--gray-100);
+    padding-top: 14px;
+  }
+  .chat-preview-title { font-size: 11px; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+  .chat-bubble {
+    font-size: 12.5px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    max-width: 85%;
+    line-height: 1.45;
+  }
+  .chat-bubble.bot { background: var(--gray-100); color: var(--gray-900); }
+  .chat-bubble.user { background: var(--teal); color: #fff; margin-left: auto; }
+  .chat-ts { font-size: 10px; opacity: 0.6; margin-top: 1px; }
+
+  .actions {
+    padding: 14px 20px;
+    border-top: 1px solid var(--gray-100);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.15s, transform 0.1s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn:hover { opacity: 0.88; }
+  .btn:active { transform: scale(0.98); }
+  .btn-aprobar { background: var(--teal); color: #fff; }
+  .btn-editar { background: var(--amber-light); color: var(--amber); border: 1px solid #e8c060; }
+  .btn-nurturing { background: var(--gray-100); color: var(--gray-600); }
+  .btn-rechazar { background: var(--red-light); color: var(--red); }
+  .btn-aprobar-confirm { background: #166534; color: #fff; }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--gray-900);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 100;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--gray-400);
+  }
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 15px; }
+
+  .filters { display: flex; gap: 8px; margin-bottom: 20px; }
+  .filter-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12.5px;
+    font-weight: 500;
+    border: 1px solid var(--gray-200);
+    background: #fff;
+    cursor: pointer;
+    color: var(--gray-600);
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .filter-btn.active { background: var(--teal); color: #fff; border-color: var(--teal); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">L</div>
+    <div>
+      <div class="logo-text">LIA — Panel de Cierres</div>
+      <div class="logo-sub">Agente 6 · Aprobación humana</div>
+    </div>
+  </div>
+  <div class="header-stats">
+    <div class="stat">
+      <div class="stat-num" id="stat-pendientes">0</div>
+      <div class="stat-label">Pendientes</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="stat-hoy">0</div>
+      <div class="stat-label">Aprobados hoy</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="stat-total">$0</div>
+      <div class="stat-label">Total del día</div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <h1>Leads listos para cierre</h1>
+  <p class="subtitle">Revisa el perfil y aprueba o ajusta la propuesta antes de enviar el link de pago.</p>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="filtrar('todos')">Todos</button>
+    <button class="filter-btn" onclick="filtrar('caliente')">🔥 Calientes</button>
+    <button class="filter-btn" onclick="filtrar('tibio')">🌡 Tibios</button>
+    <button class="filter-btn" onclick="filtrar('whatsapp')">WhatsApp</button>
+    <button class="filter-btn" onclick="filtrar('email')">Email</button>
+    <button class="filter-btn" onclick="filtrar('web')">Web chat</button>
+  </div>
+
+  <div id="leads-container"></div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Datos de prueba (en producción vienen de n8n via API) ──────────
+const LEADS_DEMO = [
+  {
+    id: 'lead_001',
+    nombre: 'Carlos Mendoza',
+    carrera: 'Derecho',
+    canal: 'whatsapp',
+    fecha_egel: 'En 2 semanas',
+    urgencia: 'caliente',
+    reprobado_antes: true,
+    mayor_dolor: 'Reprobó en enero, dice que estudió pero no sabía qué exactamente evalúa el CENEVAL.',
+    guia: 'Guía EGEL Derecho',
+    precio: 299,
+    url_compra: 'https://lia.lasagadeangelo.com.mx/simulador/guia-derecho',
+    chat: [
+      { rol: 'bot', texto: '¿Ya intentaste estudiar antes o es tu primera vez?', ts: '10:31' },
+      { rol: 'user', texto: 'ya la presenté en enero y la reprobé, me daba igual el resultado pero ya me urge titular', ts: '10:32' },
+      { rol: 'bot', texto: '¿Sabes en qué áreas te fue peor?', ts: '10:33' },
+      { rol: 'user', texto: 'creo que en derecho constitucional, pero tampoco me avisaron exactamente', ts: '10:33' },
+    ],
+    estado: 'pendiente',
+    timestamp: '2025-05-02T10:35:00Z'
+  },
+  {
+    id: 'lead_002',
+    nombre: 'Valeria Torres',
+    carrera: 'Administración',
+    canal: 'web',
+    fecha_egel: 'En 6 semanas',
+    urgencia: 'tibio',
+    reprobado_antes: false,
+    mayor_dolor: 'Primera vez que va a presentar. No tiene material de la escuela y está asustada por el formato.',
+    guia: 'Guía EGEL Administración',
+    precio: 299,
+    url_compra: 'https://lia.lasagadeangelo.com.mx/simulador/guia-administracion',
+    chat: [
+      { rol: 'bot', texto: '¿Tu escuela te dio material para prepararte?', ts: '11:15' },
+      { rol: 'user', texto: 'no nada, solo nos dijeron que teníamos que presentarlo', ts: '11:16' },
+      { rol: 'bot', texto: 'Eso es lo más común, la mayoría llega sin preparación. ¿Ya hiciste el simulador?', ts: '11:16' },
+      { rol: 'user', texto: 'sí lo hice hace rato y me fue mal en finanzas y mercado', ts: '11:17' },
+    ],
+    estado: 'pendiente',
+    timestamp: '2025-05-02T11:20:00Z'
+  }
+];
+
+let leads = [...LEADS_DEMO];
+let filtroActual = 'todos';
+let aprobadosHoy = 0;
+let totalHoy = 0;
+
+function renderLeads() {
+  const container = document.getElementById('leads-container');
+  const filtrados = leads.filter(l => {
+    if (filtroActual === 'todos') return l.estado === 'pendiente';
+    if (filtroActual === 'caliente' || filtroActual === 'tibio') return l.urgencia === filtroActual && l.estado === 'pendiente';
+    return l.canal === filtroActual && l.estado === 'pendiente';
+  });
+
+  document.getElementById('stat-pendientes').textContent = leads.filter(l => l.estado === 'pendiente').length;
+  document.getElementById('stat-hoy').textContent = aprobadosHoy;
+  document.getElementById('stat-total').textContent = '$' + totalHoy.toLocaleString();
+
+  if (filtrados.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">🎯</div>
+        <p>No hay leads pendientes en este filtro.<br>Revisa más tarde o cambia el filtro.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = filtrados.map(lead => `
+    <div class="lead-card" id="card-${lead.id}">
+      <div class="lead-header">
+        <div class="avatar">${lead.nombre.charAt(0)}</div>
+        <div class="lead-info">
+          <div class="lead-name">${lead.nombre}</div>
+          <div class="lead-meta">${lead.carrera} · ${lead.fecha_egel}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <span class="badge badge-${lead.urgencia}">${lead.urgencia === 'caliente' ? '🔥' : '🌡'} ${lead.urgencia}</span>
+          <span class="badge badge-canal">${lead.canal}</span>
+          ${lead.reprobado_antes ? '<span class="badge" style="background:#FEF3C7;color:#92400E">Reprobó antes</span>' : ''}
+        </div>
+      </div>
+
+      <div class="lead-body">
+        <div class="detail">
+          <div class="detail-label">Carrera</div>
+          <div class="detail-value">${lead.carrera}</div>
+        </div>
+        <div class="detail">
+          <div class="detail-label">EGEL</div>
+          <div class="detail-value">${lead.fecha_egel}</div>
+        </div>
+        <div class="dolor-box">
+          <div class="detail-label">Mayor dolor detectado</div>
+          <div class="detail-value">${lead.mayor_dolor}</div>
+        </div>
+        <div class="propuesta-box">
+          <div>
+            <div class="detail-label" style="color:var(--teal-dark)">Propuesta del agente</div>
+            <div class="propuesta-nombre">${lead.guia}</div>
+          </div>
+          <div class="propuesta-precio">$${lead.precio} MXN</div>
+        </div>
+      </div>
+
+      <div class="chat-preview">
+        <div class="chat-preview-title">Últimos mensajes</div>
+        ${lead.chat.map(m => `
+          <div class="chat-bubble ${m.rol}">
+            ${m.texto}
+            <div class="chat-ts">${m.ts}</div>
+          </div>`).join('')}
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-aprobar" onclick="aprobar('${lead.id}')">✅ Aprobar y cerrar</button>
+        <button class="btn btn-nurturing" onclick="nurturing('${lead.id}')">🔄 Más nurturing</button>
+        <button class="btn btn-rechazar" onclick="rechazar('${lead.id}')">✕ No interesado</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function aprobar(id) {
+  const lead = leads.find(l => l.id === id);
+  if (!lead) return;
+  
+  // En producción: POST a /webhook/aprobacion
+  console.log('Aprobando cierre para:', lead.nombre, '— Activando Agente 7');
+  
+  lead.estado = 'aprobado';
+  aprobadosHoy++;
+  totalHoy += lead.precio;
+  
+  toast(`✅ Cierre enviado a ${lead.nombre} — Agente 7 activado`);
+  renderLeads();
+}
+
+function nurturing(id) {
+  const lead = leads.find(l => l.id === id);
+  if (!lead) return;
+  lead.estado = 'nurturing';
+  toast(`🔄 ${lead.nombre} regresa al Agente 3`);
+  renderLeads();
+}
+
+function rechazar(id) {
+  const lead = leads.find(l => l.id === id);
+  if (!lead) return;
+  lead.estado = 'rechazado';
+  toast(`❌ Lead ${lead.nombre} archivado`);
+  renderLeads();
+}
+
+function filtrar(f) {
+  filtroActual = f;
+  document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  renderLeads();
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ── Simular llegada de leads en tiempo real ──
+// En producción: polling a /api/leads o WebSocket desde n8n
+setInterval(() => {
+  // fetch('/api/leads/pendientes').then(r => r.json()).then(data => { leads = data; renderLeads(); });
+}, 30000);
+
+renderLeads();
+</script>
+</body>
+</html>
