@@ -2,431 +2,260 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Widget Chat LIA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LIA Sales AI - Analytics & Observability</title>
     
-    <!-- ESTILOS DEL CHAT (Pegar en tu archivo CSS o en el <head>) -->
     <style>
-        /* Variables y reset local para no afectar la landing */
-        #lia-chat-container * {
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
+        /* ==========================
+           UI PREMIUM (Mantenido)
+           ========================== */
+        #lia-chat-container * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+        #lia-chat-container { position: fixed; bottom: 20px; right: 20px; z-index: 999999; display: flex; flex-direction: column; align-items: flex-end; }
+        #lia-chat-toggle { width: 60px; height: 60px; background: #00a884; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.3); transition: 0.3s; }
+        #lia-chat-toggle:hover { transform: scale(1.1); background: #00ca9d; }
+        #lia-chat-toggle svg { fill: white; width: 28px; height: 28px; }
 
-        #lia-chat-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 99999;
-        }
-
-        /* Botón Flotante */
-        #lia-chat-toggle {
-            width: 60px;
-            height: 60px;
-            background: #00a884;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            transition: transform 0.3s ease;
-        }
-
-        #lia-chat-toggle:hover {
-            transform: scale(1.05);
-        }
-
-        #lia-chat-toggle svg {
-            fill: white;
-            width: 30px;
-            height: 30px;
-        }
-
-        /* Ventana de Chat */
         #lia-chat-window {
-            display: none; /* Oculto por defecto */
-            flex-direction: column;
-            width: 350px;
-            height: 500px;
-            max-height: calc(100vh - 100px);
-            background: #111b21; /* WhatsApp dark bg */
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-            overflow: hidden;
-            animation: slideUp 0.3s ease forwards;
+            display: none; flex-direction: column; width: 380px; height: 600px; max-height: calc(100vh - 100px);
+            background: #0b141a; border-radius: 16px; box-shadow: 0 12px 48px rgba(0,0,0,0.5); overflow: hidden;
+            border: 1px solid #2a3942; transition: 0.3s; transform: translateY(20px) scale(0.95); opacity: 0;
         }
+        #lia-chat-window.active { display: flex; transform: translateY(0) scale(1); opacity: 1; }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        #lia-chat-header { background: #202c33; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2a3942; }
+        .lia-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, #00a884, #00ca9d); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; color: white; }
+        .lia-title { font-size: 15px; font-weight: 600; margin: 0; color: #e9edef; }
+        .lia-status { font-size: 12px; color: #00a884; margin: 2px 0 0 0; display: flex; align-items: center; gap: 4px; }
+        .lia-status::before { content: ''; width: 6px; height: 6px; background: #00a884; border-radius: 50%; }
 
-        /* Cabecera */
-        #lia-chat-header {
-            background: #202c33;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: white;
-            border-bottom: 1px solid #2a3942;
-        }
+        #lia-chat-body { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #0b141a; scroll-behavior: smooth; }
+        .lia-msg { max-width: 85%; padding: 10px 16px; border-radius: 12px; font-size: 14.5px; line-height: 1.5; color: #e9edef; animation: msgFadeIn 0.3s ease-out forwards; }
+        @keyframes msgFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        #lia-chat-header-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .lia-msg-bot { align-self: flex-start; background: #202c33; border-top-left-radius: 2px; }
+        .lia-msg-user { align-self: flex-end; background: #005c4b; border-top-right-radius: 2px; }
 
-        .lia-avatar {
-            width: 35px;
-            height: 35px;
-            background: #00a884;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            font-size: 14px;
-        }
+        #lia-chat-footer { background: #202c33; padding: 12px 16px; display: flex; gap: 12px; border-top: 1px solid #2a3942; }
+        #lia-chat-input { flex: 1; background: #2a3942; border: none; padding: 12px 16px; border-radius: 24px; color: #e9edef; outline: none; }
+        #lia-chat-send { background: #00a884; border: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; }
 
-        .lia-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin: 0;
-        }
+        .lia-typing { display: flex; gap: 4px; padding: 4px 0; }
+        .lia-dot { width: 6px; height: 6px; background: #8696a0; border-radius: 50%; animation: liaBounce 1.4s infinite ease-in-out both; }
+        .lia-dot:nth-child(1) { animation-delay: -0.32s; }
+        .lia-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes liaBounce { 0%, 80%, 100% { transform: scale(0.3); opacity: 0.3; } 40% { transform: scale(1); opacity: 1; } }
 
-        .lia-status {
-            font-size: 12px;
-            color: #00a884;
-            margin: 0;
-        }
-
-        #lia-chat-close {
-            background: none;
-            border: none;
-            color: #aebac1;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 0;
-            line-height: 1;
-        }
-
-        #lia-chat-close:hover {
-            color: white;
-        }
-
-        /* Cuerpo del Chat */
-        #lia-chat-body {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background: #0b141a; /* Fondo muy oscuro */
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        /* Burbujas */
-        .lia-msg {
-            max-width: 80%;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 14.5px;
-            line-height: 1.4;
-            color: #e9edef;
-            word-wrap: break-word;
-        }
-
-        .lia-msg-bot {
-            align-self: flex-start;
-            background: #202c33;
-            border-top-left-radius: 0;
-        }
-
-        .lia-msg-user {
-            align-self: flex-end;
-            background: #005c4b;
-            border-top-right-radius: 0;
-        }
-
-        /* Input Area */
-        #lia-chat-footer {
-            background: #202c33;
-            padding: 10px 15px;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        #lia-chat-input {
-            flex: 1;
-            background: #2a3942;
-            border: none;
-            padding: 12px 15px;
-            border-radius: 8px;
-            color: #e9edef;
-            font-size: 15px;
-            outline: none;
-        }
-
-        #lia-chat-input::placeholder {
-            color: #8696a0;
-        }
-
-        #lia-chat-send {
-            background: #00a884;
-            border: none;
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        #lia-chat-send:hover {
-            background: #029072;
-        }
-
-        #lia-chat-send svg {
-            fill: white;
-            width: 20px;
-            height: 20px;
-            margin-left: 2px;
-        }
-
-        /* Loader Animation */
-        .lia-loader-msg {
-            display: flex;
-            gap: 4px;
-            align-items: center;
-            height: 40px;
-        }
-
-        .lia-typing-dot {
-            width: 6px;
-            height: 6px;
-            background: #8696a0;
-            border-radius: 50%;
-            animation: liaTyping 1.4s infinite ease-in-out both;
-        }
-
-        .lia-typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .lia-typing-dot:nth-child(2) { animation-delay: -0.16s; }
-
-        @keyframes liaTyping {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
-        }
-
-        /* Responsive Mobile */
         @media (max-width: 480px) {
-            #lia-chat-window {
-                width: 100vw;
-                height: 100vh;
-                max-height: 100vh;
-                bottom: 0;
-                right: 0;
-                border-radius: 0;
-            }
-            #lia-chat-toggle {
-                bottom: 15px;
-                right: 15px;
-            }
+            #lia-chat-window { width: 100vw; height: 100vh; max-height: 100vh; border-radius: 0; bottom: 0; right: 0; }
         }
     </style>
 </head>
-<body style="background-color: #f0f2f5; height: 150vh; margin: 0; font-family: sans-serif;">
+<body>
 
-    <!-- Simulación de Landing Page para probar los botones -->
-    <div style="padding: 50px;">
-        <h1>Mi Landing Page</h1>
-        <p>Prueba los botones para iniciar el chat con contexto.</p>
-        <button onclick="startChat('egel')" style="padding: 10px 20px; background: #00a884; color: white; border: none; cursor: pointer; border-radius: 5px;">Entrar a Sección EGEL</button>
-        <button onclick="startChat('lia_staylo')" style="padding: 10px 20px; background: #2563eb; color: white; border: none; cursor: pointer; border-radius: 5px; margin-left: 10px;">Entrar a Sección LIA-Staylo</button>
-    </div>
-
-    <!-- ============================================== -->
-    <!-- ESTRUCTURA HTML DEL CHAT (Pegar en tu <body>)  -->
-    <!-- ============================================== -->
     <div id="lia-chat-container">
-        <!-- Botón flotante -->
-        <div id="lia-chat-toggle" onclick="openChat()">
-            <svg viewBox="0 0 24 24">
-                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
-            </svg>
+        <div id="lia-chat-toggle" onclick="LIA_ACTIONS.toggleChat()">
+            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
         </div>
-
-        <!-- Ventana principal -->
         <div id="lia-chat-window">
             <div id="lia-chat-header">
-                <div id="lia-chat-header-info">
-                    <div class="lia-avatar">LIA</div>
-                    <div>
-                        <p class="lia-title">Asesor Virtual</p>
-                        <p class="lia-status">En línea</p>
-                    </div>
-                </div>
-                <button id="lia-chat-close" onclick="closeChat()">×</button>
+                <div class="lia-avatar">L</div>
+                <div><p class="lia-title">LIA Asesor</p><p class="lia-status">En línea</p></div>
+                <button onclick="LIA_ACTIONS.toggleChat()" style="background:none;border:none;color:#aaa;font-size:20px;cursor:pointer;">×</button>
             </div>
-
-            <div id="lia-chat-body">
-                <!-- Los mensajes se insertarán aquí -->
-            </div>
-
+            <div id="lia-chat-body"></div>
             <div id="lia-chat-footer">
-                <input type="text" id="lia-chat-input" placeholder="Escribe un mensaje..." autocomplete="off">
-                <button id="lia-chat-send" onclick="handleSendClick()">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                    </svg>
+                <input type="text" id="lia-chat-input" placeholder="Escribe aquí..." autocomplete="off">
+                <button id="lia-chat-send" onclick="LIA_ACTIONS.handleSend()">
+                    <svg viewBox="0 0 24 24" style="fill:white;width:20px;"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- ============================================== -->
-    <!-- SCRIPT DEL CHAT (Pegar antes de </body>)       -->
-    <!-- ============================================== -->
     <script>
-        const session_id = "user_" + Date.now();
-        let chatContext = null;
-        let isFirstMessage = true;
+        /**
+         * LIA ANALYTICS & OBSERVABILITY (INVISIBLE)
+         */
+        const LIA_ANALYTICS = {
+            events: [],
+            startTime: Date.now(),
 
-        // Elementos del DOM
-        const chatWindow = document.getElementById('lia-chat-window');
-        const chatToggle = document.getElementById('lia-chat-toggle');
-        const chatBody = document.getElementById('lia-chat-body');
-        const chatInput = document.getElementById('lia-chat-input');
-
-        // ==== FUNCIONES DE CONTROL DE UI ====
-        
-        function openChat() {
-            chatWindow.style.display = 'flex';
-            chatToggle.style.display = 'none';
-            chatInput.focus();
-        }
-
-        function closeChat() {
-            chatWindow.style.display = 'none';
-            chatToggle.style.display = 'flex';
-        }
-
-        // Se activa desde la landing (ej. onClick="startChat('egel')")
-        function startChat(contexto) {
-            chatContext = contexto;
-            openChat();
-
-            // Mensaje inicial automático si es la primera vez
-            if (isFirstMessage) {
-                isFirstMessage = false;
+            track: (name, data = {}) => {
+                const event = {
+                    name,
+                    timestamp: new Date().toISOString(),
+                    context: LIA_STATE.context,
+                    ...data
+                };
+                LIA_ANALYTICS.events.push(event);
                 
-                let autoMsg = "Hola, quiero información";
-                if (chatContext === "egel") {
-                    autoMsg = "Quiero información del EGEL";
-                } else if (chatContext === "lia_staylo") {
-                    autoMsg = "Quiero crear libros con IA";
+                // Debug Log (Solo en desarrollo/consola)
+                if (LIA_CONFIG.DEBUG) {
+                    console.group(`[LIA Analytics]: ${name}`);
+                    console.table(data);
+                    console.groupEnd();
                 }
-                
-                // Enviar al backend
-                sendMessage(autoMsg);
+
+                // Aquí podrías enviar a un endpoint:
+                // fetch(LIA_CONFIG.ANALYTICS_URL, { method: 'POST', body: JSON.stringify(event) });
+            },
+
+            getDropoffProfile: () => {
+                const lastEvent = LIA_ANALYTICS.events[LIA_ANALYTICS.events.length - 1];
+                return {
+                    totalTime: (Date.now() - LIA_ANALYTICS.startTime) / 1000,
+                    messageCount: LIA_STATE.metrics.msgCount,
+                    lastAction: lastEvent ? lastEvent.name : 'none'
+                };
             }
-        }
+        };
 
-        // ==== FUNCIONES DE RENDERIZADO ====
+        const LIA_PSYCHOLOGY = {
+            lastFillerType: null,
+            detectEmotion: (text) => {
+                const lower = text.toLowerCase().trim();
+                const profile = { urgency: 0, intent: 0, objection: false, abandonment: false };
 
-        function renderUserMessage(text) {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'lia-msg lia-msg-user';
-            msgDiv.textContent = text;
-            chatBody.appendChild(msgDiv);
-            scrollToBottom();
-        }
+                if (/\b(caro|dinero|lana|presupuesto|despues|pensar|barato)\b/.test(lower)) {
+                    profile.objection = true;
+                    LIA_ANALYTICS.track('objection_detected', { type: 'price_or_time', text: lower });
+                }
 
-        function renderBotMessage(text) {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'lia-msg lia-msg-bot';
-            // Permite saltos de línea básicos si la API los envía
-            msgDiv.innerHTML = text.replace(/\n/g, '<br>'); 
-            chatBody.appendChild(msgDiv);
-            scrollToBottom();
-        }
+                if (lower.length < 4 || /\b(ok|ya|si|no|vale)\b/.test(lower)) {
+                    profile.abandonment = true;
+                    LIA_ANALYTICS.track('low_engagement', { text: lower });
+                }
 
-        function showLoader() {
-            const loaderDiv = document.createElement('div');
-            loaderDiv.className = 'lia-msg lia-msg-bot lia-loader-msg';
-            loaderDiv.id = 'lia-loader';
-            loaderDiv.innerHTML = `
-                <div class="lia-typing-dot"></div>
-                <div class="lia-typing-dot"></div>
-                <div class="lia-typing-dot"></div>
-            `;
-            chatBody.appendChild(loaderDiv);
-            scrollToBottom();
-        }
+                if (/\b(comprar|pagar|quiero|info|pago)\b/.test(lower)) {
+                    profile.intent = 1;
+                    LIA_ANALYTICS.track('intent_high', { text: lower });
+                }
 
-        function hideLoader() {
-            const loader = document.getElementById('lia-loader');
-            if (loader) loader.remove();
-        }
+                return profile;
+            }
+        };
 
-        function scrollToBottom() {
-            chatBody.scrollTop = chatBody.scrollHeight;
-        }
+        const LIA_CONFIG = {
+            API_URL: "https://agents.lasagadeangelo.com.mx/chat",
+            CHUNK_PAUSE: 1200,
+            DEBUG: true // Activar para ver logs en consola
+        };
 
-        // ==== LÓGICA DE ENVÍO Y FETCH ====
+        const LIA_STORAGE = {
+            get: (k) => JSON.parse(localStorage.getItem(`lia_${k}`)),
+            set: (k, v) => localStorage.setItem(`lia_${k}`, JSON.stringify(v))
+        };
 
-        function handleSendClick() {
-            const msg = chatInput.value.trim();
-            if (!msg) return;
-            
-            chatInput.value = '';
-            sendMessage(msg);
-        }
+        const LIA_STATE = {
+            sessionId: LIA_STORAGE.get('session_id') || ("user_" + Date.now()),
+            isOpen: false,
+            context: sessionStorage.getItem('lia_context') || 'general',
+            metrics: { msgCount: 0, conversionScore: 0 }
+        };
+        LIA_STORAGE.set('session_id', LIA_STATE.sessionId);
 
-        // Evento para Enter en el input
-        chatInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                handleSendClick();
+        const LIA_ACTIONS = {
+            toggleChat: () => {
+                const win = document.getElementById('lia-chat-window');
+                LIA_STATE.isOpen = !LIA_STATE.isOpen;
+                LIA_ANALYTICS.track(LIA_STATE.isOpen ? 'chat_opened' : 'chat_closed', LIA_ANALYTICS.getDropoffProfile());
+
+                if (LIA_STATE.isOpen) {
+                    win.classList.add('active');
+                    LIA_ACTIONS.checkReconnection();
+                    setTimeout(() => document.getElementById('lia-chat-input').focus(), 300);
+                } else win.classList.remove('active');
+            },
+
+            checkReconnection: () => {
+                const body = document.getElementById('lia-chat-body');
+                if (body.children.length > 0) return;
+                LIA_ANALYTICS.track('conversation_start', { first_time: !LIA_STORAGE.get('memory') });
+                LIA_UI.renderMessage("¡Hola! Soy LIA, tu asesor personal. ¿En qué puedo apoyarte hoy? 👀", 'bot');
+            },
+
+            handleSend: () => {
+                const input = document.getElementById('lia-chat-input');
+                const val = input.value.trim();
+                if (val && !LIA_STATE.isSending) {
+                    input.value = '';
+                    LIA_STATE.metrics.msgCount++;
+                    LIA_ANALYTICS.track('message_sent', { text: val, msgIndex: LIA_STATE.metrics.msgCount });
+                    LIA_ACTIONS.sendMessage(val);
+                }
+            },
+
+            sendMessage: async (message) => {
+                LIA_STATE.isSending = true;
+                LIA_UI.renderMessage(message, 'user');
+                
+                const emotion = LIA_PSYCHOLOGY.detectEmotion(message);
+                LIA_UI.showTyping();
+
+                try {
+                    const res = await fetch(LIA_CONFIG.API_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            session_id: LIA_STATE.sessionId,
+                            message: message,
+                            contexto: LIA_STATE.context
+                        })
+                    });
+                    const data = await res.json();
+                    LIA_UI.hideTyping();
+                    
+                    LIA_ANALYTICS.track('agent_response', { agent: data.agente, etapa: data.etapa });
+                    
+                    await LIA_ACTIONS.processBotResponse(data.response);
+                } catch (e) {
+                    LIA_UI.hideTyping();
+                    LIA_ANALYTICS.track('system_error', { error: e.message });
+                    LIA_UI.renderMessage("Híjole, se me cortó la señal. 😅 ¿Me repites?", 'bot');
+                } finally {
+                    LIA_STATE.isSending = false;
+                }
+            },
+
+            processBotResponse: async (text) => {
+                const chunks = text.split(/\n\n|\. |\? /).filter(c => c.trim().length > 0);
+                for (let i = 0; i < chunks.length; i++) {
+                    LIA_UI.showTyping();
+                    await new Promise(r => setTimeout(r, 1000)); // Delay base
+                    LIA_UI.hideTyping();
+                    LIA_UI.renderMessage(chunks[i], 'bot');
+                    if (i < chunks.length - 1) await new Promise(r => setTimeout(r, LIA_CONFIG.CHUNK_PAUSE));
+                }
+            }
+        };
+
+        const LIA_UI = {
+            renderMessage: (text, type) => {
+                const body = document.getElementById('lia-chat-body');
+                const div = document.createElement('div');
+                div.className = `lia-msg lia-msg-${type}`;
+                div.innerHTML = text.replace(/\n/g, '<br>');
+                body.appendChild(div);
+                body.scrollTop = body.scrollHeight;
+            },
+            showTyping: () => {
+                const body = document.getElementById('lia-chat-body');
+                const div = document.createElement('div');
+                div.id = 'lia-typing';
+                div.className = 'lia-msg lia-msg-bot';
+                div.innerHTML = `<div class="lia-typing"><div class="lia-dot"></div><div class="lia-dot"></div><div class="lia-dot"></div></div>`;
+                body.appendChild(div);
+                body.scrollTop = body.scrollHeight;
+            },
+            hideTyping: () => { const el = document.getElementById('lia-typing'); if (el) el.remove(); }
+        };
+
+        document.getElementById('lia-chat-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') LIA_ACTIONS.handleSend(); });
+        window.addEventListener('load', () => {
+            if (!sessionStorage.getItem('lia_auto_opened')) {
+                setTimeout(() => { if (!LIA_STATE.isOpen) LIA_ACTIONS.toggleChat(); sessionStorage.setItem('lia_auto_opened', 'true'); }, 3000);
             }
         });
-
-        // Flujo principal de conexión con backend
-        async function sendMessage(message) {
-            renderUserMessage(message);
-            showLoader();
-
-            // Si se manda mensaje manual antes del auto, marcamos como iniciado
-            isFirstMessage = false; 
-
-            try {
-                const res = await fetch("http://127.0.0.1:8000/chat", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        session_id: session_id,
-                        message: message,
-                        contexto: chatContext || "general" // Fallback seguro
-                    })
-                });
-
-                if (!res.ok) throw new Error("Error en el servidor");
-
-                const data = await res.json();
-                hideLoader();
-                renderBotMessage(data.response);
-
-            } catch (error) {
-                console.error("[Chat Error]:", error);
-                hideLoader();
-                renderBotMessage("Lo siento, hubo un problema de conexión. Intenta de nuevo.");
-            }
-        }
     </script>
 </body>
 </html>
