@@ -5,6 +5,7 @@ import os
 from config.precios import PRODUCTOS
 from crm.manager import update_lead, register_sale
 from response_engine import detect_intent, get_template_response
+from sales_flows import advance_flow
 
 # CONFIGURACIÓN IA (LM STUDIO / OLLAMA)
 BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:1234")
@@ -168,14 +169,15 @@ def run_pipeline(session_id: str, session: dict, message: str):
     start_total = time.time()
     
     session.setdefault("history", [])
+    session.setdefault("sales_stage", "idle")
     contexto = session.get("contexto", "general")
-    etapa = session.get("etapa", "captura")
+    current_stage = session.get("sales_stage", "idle")
     
-    # 1. ROUTER (Rápido)
+    # 1. ROUTER (Detección de intención)
     intent = detect_intent(message)
-    print(f"\n[ROUTER] Intent: {intent} | Contexto: {contexto}")
+    print(f"\n[ROUTER] Intent: {intent} | Context: {contexto}")
 
-    # 2. AGENTE ESTRATÉGICO (IA Análisis)
+    # 2. AGENTE ESTRATÉGICO (Análisis comercial)
     agente_actual_id = session.get("agente_actual", "agente_1")
     agents_map = {
         "agente_1": agente_1,
@@ -188,45 +190,56 @@ def run_pipeline(session_id: str, session: dict, message: str):
     strategy_raw = agente_estrat.run(message, session)
     strategy_data = parse_strategic_json(strategy_raw)
     
-    # Actualizar estado desde estrategia
+    # Extraer data estratégica
     detected_intent = strategy_data.get("intent", intent)
-    lead_stage = strategy_data.get("lead_stage", etapa)
-    next_action = strategy_data.get("next_action", "")
+    suggested_stage = strategy_data.get("stage", current_stage)
     response_type = strategy_data.get("response_type", "template")
     
     if strategy_data.get("detected_context"):
         session["contexto"] = strategy_data.get("detected_context")
         contexto = session["contexto"]
 
-    session["etapa"] = lead_stage
-    print(f"[STATE] Stage: {lead_stage} | Intent: {detected_intent} | Next: {next_action}")
+    # 3. SALES FLOW ENGINE (Guiar conversación)
+    # El engine decide la respuesta basada en el flow predefinido
+    flow_response, next_stage = advance_flow(session, detected_intent, contexto)
+    
+    print(f"[FLOW] {current_stage} -> {next_stage}")
+    print(f"[INTENT] {detected_intent}")
+    print(f"[PRODUCT] {contexto}")
 
-    # 3. RESPONSE GENERATION (Template vs Fast IA)
+    # 4. GENERACIÓN DE RESPUESTA
     clean_msg = ""
     
-    if response_type == "template":
-        print("[RESPONSE] Usando Template...")
-        clean_msg = get_template_response(detected_intent, contexto)
+    # PRIORIDAD ABSOLUTA AL TEMPLATE SI NO SE PIDE AI EXPLÍCITAMENTE
+    if response_type == "template" and flow_response:
+        print("[RESPONSE] TEMPLATE")
+        clean_msg = flow_response
     else:
-        print("[RESPONSE] Generando Fast IA...")
+        # Solo usamos AI para preguntas abiertas, objeciones complejas o si no hay template
+        print("[RESPONSE] AI (Fast Mode)")
         clean_msg = agente_estrat.run(message, session, system_override=FAST_PROMPT)
 
-    # Fallback si por algo queda vacío
-    if not clean_msg or len(clean_msg.strip()) < 2:
-        clean_msg = get_template_response("fallback", contexto)
+    # Fallback de seguridad
+    if not clean_msg:
+        clean_msg = flow_response if flow_response else get_template_response("fallback", contexto)
 
-    # ===== LEAD SCORING (Lógica Simplificada) =====
+    # ===== LEAD SCORING & CRM =====
     score = session.get("lead_score", 0)
     if "pricing" in detected_intent: score += 2
     if "urgency" in detected_intent: score += 3
-    if lead_stage == "warm": score += 2
-    if lead_stage == "hot": score += 5
+    if next_stage in ["presentation", "closing"]: score += 4
+    
     session["lead_score"] = score
-    session["lead_nivel"] = "HOT" if score >= 7 else "WARM" if score >= 4 else "COLD"
+    session["lead_nivel"] = "HOT" if score >= 8 else "WARM" if score >= 4 else "COLD"
 
-    # ===== CRM UPDATE =====
+    # Actualizar Agente según etapa del flow (simplificado)
+    if next_stage in ["pain_point", "presentation"]:
+        session["agente_actual"] = "agente_2"
+    elif next_stage in ["closing", "done"]:
+        session["agente_actual"] = "agente_3"
+
     update_lead(session_id, {
-        "etapa": lead_stage,
+        "etapa": next_stage,
         "lead_score": score,
         "lead_nivel": session["lead_nivel"],
         "ultimo_contexto": contexto

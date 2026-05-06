@@ -5,8 +5,8 @@ Eres el experto en calificación de leads. Analiza si el usuario tiene dudas rea
 RESPONDE ÚNICAMENTE EN FORMATO JSON:
 {
     "intent": "pricing | objection | urgency | specific_question",
-    "lead_stage": "warm | hot",
+    "stage": "current_sales_stage",
+    "next_stage": "suggested_next_stage",
     "urgencia": "baja | media | alta",
-    "next_action": "dar_precio | comparativa | cierre_directo",
     "response_type": "template | ai"
 }

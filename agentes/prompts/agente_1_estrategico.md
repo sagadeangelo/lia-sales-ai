@@ -6,7 +6,7 @@ RESPONDE ÚNICAMENTE EN FORMATO JSON:
 {
     "intent": "egel_interest | lia_interest | pricing | objection | urgency | greeting | unknown",
     "detected_context": "egel | lia_staylo | general",
-    "lead_stage": "cold | interested | warm",
-    "next_action": "mostrar_intro | pedir_carrera | dar_precio | resolver_objecion",
+    "stage": "current_sales_stage",
+    "next_stage": "suggested_next_stage",
     "response_type": "template | ai"
 }

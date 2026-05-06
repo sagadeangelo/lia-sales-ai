@@ -136,10 +136,20 @@
                 "fecha": "2026-05-05T21:03:59.552174",
                 "user": "estoy interesado en una guia de derecho.",
                 "bot": "Sí 😊 puedo ayudarte con eso."
+            },
+            {
+                "fecha": "2026-05-05T21:11:27.551749",
+                "user": "HOLA, QUIERO COMPRAR UNA GUIA DE DERECHO.",
+                "bot": "¡Claro! ⚖️ Nuestro simulador EGEL Derecho incluye: • preguntas tipo CENEVAL • temporizador real • análisis inteligente • práctica por áreas ¿Ya sabes cuándo presentarás el examen?"
+            },
+            {
+                "fecha": "2026-05-05T21:13:25.095661",
+                "user": "en tres meses",
+                "bot": "¡Claro! 😊 Cuéntame más sobre lo que buscas para poder ayudarte mejor."
             }
         ],
         "ventas": [],
         "fecha_creacion": "2026-05-05T20:49:20.613064",
-        "ultima_interaccion": "2026-05-05T21:03:59.564874"
+        "ultima_interaccion": "2026-05-05T21:13:25.111689"
     }
 }
