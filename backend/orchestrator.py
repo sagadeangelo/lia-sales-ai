@@ -183,92 +183,95 @@ def run_pipeline(session_id: str, session: dict, message: str):
                 if career:
                     print(f"[STICKY] Manteniendo Carrera: {career}")
 
-    # 3. AGENTE ESTRATÉGICO (Análisis comercial con Memoria)
-    agente_actual_id = session.get("agente_actual", "agente_1")
-    agents_map = {
-        "agente_1": agente_1,
-        "agente_2": agente_2,
-        "agente_3": agente_3
-    }
-    agente_estrat = agents_map.get(agente_actual_id, agente_1)
-    
-    # Inyectar estado en el prompt del agente
-    prompt_con_estado = agente_estrat.prompt.replace("[PRODUCTO_ACTIVO]", contexto)
-    prompt_con_estado = prompt_con_estado.replace("[CARRERA_ACTIVA]", str(career))
-    prompt_con_estado = prompt_con_estado.replace("[ETAPA_ACTUAL]", current_stage)
+        # 3. AGENTE ESTRATÉGICO (Análisis comercial con Memoria)
+        agente_actual_id = session.get("agente_actual", "agente_1")
+        agents_map = {
+            "agente_1": agente_1,
+            "agente_2": agente_2,
+            "agente_3": agente_3
+        }
+        agente_estrat = agents_map.get(agente_actual_id, agente_1)
+        
+        # Inyectar estado en el prompt del agente
+        prompt_con_estado = agente_estrat.prompt.replace("[PRODUCTO_ACTIVO]", contexto)
+        prompt_con_estado = prompt_con_estado.replace("[CARRERA_ACTIVA]", str(career))
+        prompt_con_estado = prompt_con_estado.replace("[ETAPA_ACTUAL]", current_stage)
 
-    print(f"[STRATEGY] Analizando con {agente_estrat.name} (Contexto: {contexto})...")
-    strategy_raw = agente_estrat.run(message, session, system_override=prompt_con_estado)
-    strategy_data = parse_strategic_json(strategy_raw)
-    
-    # Extraer data estratégica
-    detected_intent = strategy_data.get("intent", intent)
-    suggested_stage = strategy_data.get("stage", current_stage)
-    response_type = strategy_data.get("response_type", "template")
-    
-    # Sticky Context: Solo cambiar contexto si el agente detecta uno nuevo MUY claro (lia vs egel)
-    # y no tenemos una carrera académica fija
-    if strategy_data.get("detected_context") and not career:
-        session["contexto"] = strategy_data.get("detected_context")
-        contexto = session["contexto"]
+        print(f"[STRATEGY] Analizando con {agente_estrat.name} (Contexto: {contexto})...")
+        strategy_raw = agente_estrat.run(message, session, system_override=prompt_con_estado)
+        strategy_data = parse_strategic_json(strategy_raw)
+        
+        # Extraer data estratégica
+        detected_intent = strategy_data.get("intent", intent)
+        suggested_stage = strategy_data.get("stage", current_stage)
+        response_type = strategy_data.get("response_type", "template")
+        
+        # Sticky Context: Solo cambiar contexto si el agente detecta uno nuevo MUY claro (lia vs egel)
+        # y no tenemos una carrera académica fija
+        if strategy_data.get("detected_context") and not career:
+            session["contexto"] = strategy_data.get("detected_context")
+            contexto = session["contexto"]
 
-    # 3. SALES FLOW ENGINE (Guiar conversación)
-    # El engine decide la respuesta basada en el flow predefinido
-    flow_response, next_stage = advance_flow(session, detected_intent, contexto, career=session.get("career"))
-    
-    print(f"[FLOW] {current_stage} -> {next_stage}")
-    print(f"[INTENT] {detected_intent}")
-    print(f"[PRODUCT] {contexto}")
+        # 3. SALES FLOW ENGINE (Guiar conversación)
+        # El engine decide la respuesta basada en el flow predefinido
+        flow_response, next_stage = advance_flow(session, detected_intent, contexto, career=session.get("career"))
+        
+        print(f"[FLOW] {current_stage} -> {next_stage}")
+        print(f"[INTENT] {detected_intent}")
+        print(f"[PRODUCT] {contexto}")
 
-    # 4. GENERACIÓN DE RESPUESTA
-    clean_msg = ""
-    
-    # PRIORIDAD ABSOLUTA AL TEMPLATE SI NO SE PIDE AI EXPLÍCITAMENTE
-    if response_type == "template" and flow_response:
-        print("[RESPONSE] TEMPLATE")
-        clean_msg = flow_response
-    else:
-        # Solo usamos AI para preguntas abiertas, objeciones complejas o si no hay template
-        print("[RESPONSE] AI (Fast Mode)")
-        clean_msg = agente_estrat.run(message, session, system_override=FAST_PROMPT)
+        # 4. GENERACIÓN DE RESPUESTA
+        clean_msg = ""
+        
+        # PRIORIDAD ABSOLUTA AL TEMPLATE SI NO SE PIDE AI EXPLÍCITAMENTE
+        if response_type == "template" and flow_response:
+            print("[RESPONSE] TEMPLATE")
+            clean_msg = flow_response
+        else:
+            # Solo usamos AI para preguntas abiertas, objeciones complejas o si no hay template
+            print("[RESPONSE] AI (Fast Mode)")
+            clean_msg = agente_estrat.run(message, session, system_override=FAST_PROMPT)
 
-    # Fallback de seguridad
-    if not clean_msg:
-        clean_msg = flow_response if flow_response else get_template_response("fallback", contexto, career=session.get("career"))
+        # Fallback de seguridad
+        if not clean_msg:
+            clean_msg = flow_response if flow_response else get_template_response("fallback", contexto, career=session.get("career"))
 
-    # ===== LEAD SCORING & CRM =====
-    score = session.get("lead_score", 0)
-    if "pricing" in detected_intent: score += 2
-    if "urgency" in detected_intent: score += 3
-    if next_stage in ["presentation", "closing"]: score += 4
-    
-    session["lead_score"] = score
-    session["lead_nivel"] = "HOT" if score >= 8 else "WARM" if score >= 4 else "COLD"
+        # ===== LEAD SCORING & CRM =====
+        score = session.get("lead_score", 0)
+        if "pricing" in detected_intent: score += 2
+        if "urgency" in detected_intent: score += 3
+        if next_stage in ["presentation", "closing"]: score += 4
+        
+        session["lead_score"] = score
+        session["lead_nivel"] = "HOT" if score >= 8 else "WARM" if score >= 4 else "COLD"
 
-    # Actualizar Agente según etapa del flow (simplificado)
-    if next_stage in ["pain_point", "presentation"]:
-        session["agente_actual"] = "agente_2"
-    elif next_stage in ["closing", "done"]:
-        session["agente_actual"] = "agente_3"
+        # Actualizar Agente según etapa del flow (simplificado)
+        if next_stage in ["pain_point", "presentation"]:
+            session["agente_actual"] = "agente_2"
+        elif next_stage in ["closing", "done"]:
+            session["agente_actual"] = "agente_3"
 
-    update_lead(session_id, {
-        "etapa": next_stage,
-        "lead_score": score,
-        "lead_nivel": session["lead_nivel"],
-        "ultimo_contexto": contexto,
-        "carrera": session.get("career")
-    })
+        update_lead(session_id, {
+            "etapa": next_stage,
+            "lead_score": score,
+            "lead_nivel": session["lead_nivel"],
+            "ultimo_contexto": contexto,
+            "carrera": session.get("career")
+        })
 
-    # ===== HISTORIAL =====
-    session["history"].append({"role": "user", "content": message})
-    session["history"].append({"role": "assistant", "content": clean_msg})
-    if len(session["history"]) > 6:
-        session["history"] = session["history"][-6:]
+        # ===== HISTORIAL =====
+        session["history"].append({"role": "user", "content": message})
+        session["history"].append({"role": "assistant", "content": clean_msg})
+        if len(session["history"]) > 6:
+            session["history"] = session["history"][-6:]
 
     except Exception as e:
-        print(f"[CRITICAL PIPELINE ERROR]: {e}")
-        # Fallback seguro para evitar HTTP 500
-        return "Perdón 😅 tuve un pequeño retraso. ¿Me podrías repetir eso último?"
+        print(f"[PIPELINE ERROR] {e}")
+        return {
+            "response": "Perdón 😅 tuve un pequeño problema procesando tu mensaje.",
+            "agent": "fallback",
+            "lead_score": 0
+        }
 
     elapsed_total = time.time() - start_total
     print(f"⚡ Tiempo Total Pipeline: {elapsed_total:.2f}s")

@@ -157,7 +157,13 @@ async def chat(req: ChatRequest):
             req.message
         )
 
-        response = clean_response(raw_response)
+        # Manejar retorno estructurado (dict) o simple (str)
+        if isinstance(raw_response, dict):
+            raw_text = raw_response.get("response", "")
+        else:
+            raw_text = raw_response
+
+        response = clean_response(raw_text)
 
         # =====================================================
         # HISTORY AI

@@ -111,7 +111,7 @@
     "user_chi8qhlms": {
         "session_id": "user_chi8qhlms",
         "nombre": "",
-        "carrera": "Psicología",
+        "carrera": "Derecho",
         "producto_actual": "EGEL",
         "etapa": "interest",
         "estado": "activo",
@@ -171,10 +171,15 @@
                 "fecha": "2026-05-05T21:30:11.691702",
                 "user": "que es LIA?",
                 "bot": "¡Claro! ⚖️ Nuestro simulador EGEL Derecho incluye: • preguntas tipo CENEVAL • temporizador real • análisis inteligente • práctica por áreas ¿Ya sabes cuándo presentarás el examen?"
+            },
+            {
+                "fecha": "2026-05-05T21:40:25.771450",
+                "user": "cuanto cuesta la guia de derecho?",
+                "bot": "¡Claro! ⚖️ Nuestro simulador EGEL Derecho incluye: • preguntas tipo CENEVAL • temporizador real • análisis inteligente • práctica por áreas ¿Ya sabes cuándo presentarás el examen?"
             }
         ],
         "ventas": [],
         "fecha_creacion": "2026-05-05T20:49:20.613064",
-        "ultima_interaccion": "2026-05-05T21:30:11.715340"
+        "ultima_interaccion": "2026-05-05T21:40:25.786111"
     }
 }
