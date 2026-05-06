@@ -136,45 +136,52 @@ def run_pipeline(session_id: str, session: dict, message: str):
     import time
     start_total = time.time()
     
+    # === INITIALIZATION & SAFETY GUARDS ===
     session.setdefault("history", [])
     session.setdefault("sales_stage", "idle")
+    session.setdefault("contexto", "general")
+    
+    contexto = session.get("contexto", "general")
+    career = session.get("career")
+    intent = detect_intent(message) or "general"
     current_stage = session.get("sales_stage", "idle")
 
-    intent = detect_intent(message)
-    print(f"\n[ROUTER] Raw Intent: {intent}")
+    print(f"\n[CTX ACTIVE] {contexto}")
+    print(f"[INTENT ACTIVE] {intent}")
 
-    # 1. SOFT MEMORY / INTENT OVERRIDE
-    # Si detectamos un intent FUERTE que no coincide con el contexto actual, cambiamos.
-    if intent in STRONG_INTENTS:
-        if "egel" in intent and contexto != "egel":
-            print(f"[OVERRIDE] Usuario cambió a EGEL. Reseteando flow.")
-            contexto = "egel"
+    try:
+        # 1. SOFT MEMORY / INTENT OVERRIDE
+        # Si detectamos un intent FUERTE que no coincide con el contexto actual, cambiamos.
+        if intent in STRONG_INTENTS:
+            if "egel" in intent and contexto != "egel":
+                print(f"[OVERRIDE] Usuario cambió a EGEL. Reseteando flow.")
+                contexto = "egel"
+                session["contexto"] = "egel"
+                session["sales_stage"] = "idle" 
+                current_stage = "idle"
+            elif "lia" in intent and contexto != "lia_staylo":
+                print(f"[OVERRIDE] Usuario cambió a LIA. Reseteando flow.")
+                contexto = "lia_staylo"
+                session["contexto"] = "lia_staylo"
+                session["career"] = None 
+                session["sales_stage"] = "idle"
+                current_stage = "idle"
+                career = None
+
+        # 2. ROUTER - Carrera (Sticky Context mejorado)
+        new_career = detect_career(message)
+        if new_career:
+            session["career"] = new_career
             session["contexto"] = "egel"
-            session["sales_stage"] = "idle" # Reiniciar para capturar el nuevo interés
-            current_stage = "idle"
-        elif "lia" in intent and contexto != "lia_staylo":
-            print(f"[OVERRIDE] Usuario cambió a LIA. Reseteando flow.")
-            contexto = "lia_staylo"
-            session["contexto"] = "lia_staylo"
-            session["career"] = None # Limpiar carrera si cambia a LIA
-            session["sales_stage"] = "idle"
-            current_stage = "idle"
-            career = None
-
-    # 2. ROUTER - Carrera (Sticky Context mejorado)
-    new_career = detect_career(message)
-    if new_career:
-        session["career"] = new_career
-        session["contexto"] = "egel"
-        contexto = "egel"
-        career = new_career
-        print(f"[CAREER] Nueva detección: {new_career} -> Forzando contexto EGEL")
-    else:
-        # Si no hay nueva carrera, recuperar la de la sesión (solo si seguimos en EGEL)
-        if contexto == "egel":
-            career = session.get("career")
-            if career:
-                print(f"[STICKY] Manteniendo Carrera: {career}")
+            contexto = "egel"
+            career = new_career
+            print(f"[CAREER] Nueva detección: {new_career} -> Forzando contexto EGEL")
+        else:
+            # Sticky Context: Mantener carrera si ya existe y seguimos en EGEL
+            if contexto == "egel":
+                career = session.get("career")
+                if career:
+                    print(f"[STICKY] Manteniendo Carrera: {career}")
 
     # 3. AGENTE ESTRATÉGICO (Análisis comercial con Memoria)
     agente_actual_id = session.get("agente_actual", "agente_1")
@@ -257,6 +264,11 @@ def run_pipeline(session_id: str, session: dict, message: str):
     session["history"].append({"role": "assistant", "content": clean_msg})
     if len(session["history"]) > 6:
         session["history"] = session["history"][-6:]
+
+    except Exception as e:
+        print(f"[CRITICAL PIPELINE ERROR]: {e}")
+        # Fallback seguro para evitar HTTP 500
+        return "Perdón 😅 tuve un pequeño retraso. ¿Me podrías repetir eso último?"
 
     elapsed_total = time.time() - start_total
     print(f"⚡ Tiempo Total Pipeline: {elapsed_total:.2f}s")
