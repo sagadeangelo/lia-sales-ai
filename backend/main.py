@@ -21,9 +21,9 @@ app = FastAPI(
 )
 
 print("\n" + "="*50)
-print(f"🚀 LIA SALES AI INICIANDO")
-print(f"🧠 MODELO ACTIVO: {MODEL}")
-print(f"🌐 API URL: {BASE_URL}")
+print(f"LIA SALES AI INICIANDO")
+print(f"MODELO ACTIVO: {MODEL}")
+print(f"API URL: {BASE_URL}")
 print("="*50 + "\n")
 
 # =========================================================
@@ -47,7 +47,7 @@ app.add_middleware(
 # CONFIG
 # =========================================================
 
-MAX_HISTORY = 30
+MAX_HISTORY = 6
 sessions = {}
 
 # =========================================================

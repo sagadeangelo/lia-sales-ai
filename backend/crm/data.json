@@ -26,5 +26,105 @@
         ],
         "fecha_creacion": "2026-05-05T15:44:32.763030",
         "ultima_interaccion": "2026-05-05T15:44:32.769543"
+    },
+    "user_ih5njgi9b": {
+        "session_id": "user_ih5njgi9b",
+        "nombre": "",
+        "carrera": null,
+        "producto_actual": "EGEL",
+        "etapa": "captura",
+        "estado": "activo",
+        "productos_interes": [],
+        "historial": [
+            {
+                "fecha": "2026-05-05T19:21:13.114101",
+                "user": "me interesa saber mas acerca de como crear mi libro inmersivo",
+                "bot": "Error procesando mensaje."
+            }
+        ],
+        "ventas": [],
+        "fecha_creacion": "2026-05-05T19:21:12.822376",
+        "ultima_interaccion": "2026-05-05T19:21:13.178223"
+    },
+    "user_8nqlcgpbe": {
+        "session_id": "user_8nqlcgpbe",
+        "nombre": "",
+        "carrera": null,
+        "producto_actual": "EGEL",
+        "etapa": "captura",
+        "estado": "activo",
+        "productos_interes": [],
+        "historial": [
+            {
+                "fecha": "2026-05-05T19:39:03.503994",
+                "user": "herramientas ia para crear libros.",
+                "bot": "Perdón 😅 tuve un pequeño retraso procesando tu mensaje. ¿Me lo repites rapidísimo?"
+            },
+            {
+                "fecha": "2026-05-05T19:42:06.904450",
+                "user": "quiero saber mas de las guias de derecho.",
+                "bot": "Perdón 😅 tuve un pequeño retraso procesando tu mensaje. ¿Me lo repites rapidísimo?"
+            }
+        ],
+        "ventas": [],
+        "fecha_creacion": "2026-05-05T19:39:03.499404",
+        "ultima_interaccion": "2026-05-05T19:42:06.947591"
+    },
+    "user_uu3408yf9": {
+        "session_id": "user_uu3408yf9",
+        "nombre": "",
+        "carrera": null,
+        "producto_actual": "EGEL",
+        "etapa": "captura",
+        "estado": "activo",
+        "productos_interes": [],
+        "historial": [
+            {
+                "fecha": "2026-05-05T20:00:50.010987",
+                "user": "si, quisiera saber mas acerca de la guia de derecho.",
+                "bot": "Perdón 😅 tuve un pequeño retraso procesando tu mensaje. ¿Me lo repites rapidísimo?"
+            }
+        ],
+        "ventas": [],
+        "fecha_creacion": "2026-05-05T20:00:50.008463",
+        "ultima_interaccion": "2026-05-05T20:00:50.035367"
+    },
+    "user_cuvyj0y4i": {
+        "session_id": "user_cuvyj0y4i",
+        "nombre": "",
+        "carrera": null,
+        "producto_actual": "EGEL",
+        "etapa": "captura",
+        "estado": "activo",
+        "productos_interes": [],
+        "historial": [
+            {
+                "fecha": "2026-05-05T20:03:57.643865",
+                "user": "Hola, Hola, como estas",
+                "bot": "Perdón 😅 tuve un pequeño retraso procesando tu mensaje. ¿Me lo repites rapidísimo?"
+            }
+        ],
+        "ventas": [],
+        "fecha_creacion": "2026-05-05T20:03:57.620906",
+        "ultima_interaccion": "2026-05-05T20:03:57.766439"
+    },
+    "user_chi8qhlms": {
+        "session_id": "user_chi8qhlms",
+        "nombre": "",
+        "carrera": null,
+        "producto_actual": "EGEL",
+        "etapa": "captura",
+        "estado": "activo",
+        "productos_interes": [],
+        "historial": [
+            {
+                "fecha": "2026-05-05T20:49:20.614628",
+                "user": "quiero saber mas acerca de las herramientas de ia para escritores que tienes.",
+                "bot": "Perdón 😅 tuve un pequeño retraso procesando tu mensaje. ¿Me lo repites rapidísimo?"
+            }
+        ],
+        "ventas": [],
+        "fecha_creacion": "2026-05-05T20:49:20.613064",
+        "ultima_interaccion": "2026-05-05T20:49:20.645305"
     }
 }

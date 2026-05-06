@@ -10,6 +10,42 @@ BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:1234")
 MODEL = os.getenv("OLLAMA_MODEL", "google/gemma-4-e4b")
 LMSTUDIO_URL = f"{BASE_URL}/v1/chat/completions"
 
+FAST_PROMPT = """
+Eres LIA, una asesora inteligente y amigable.
+
+Responde:
+- corto
+- natural
+- útil
+- menos de 80 palabras
+- tono humano mexicano ligero
+
+NO uses respuestas largas.
+"""
+
+def is_fast_message(message):
+    msg = message.lower()
+
+    simple_patterns = [
+        "hola",
+        "precio",
+        "informacion",
+        "información",
+        "quiero saber",
+        "me interesa",
+        "que incluye",
+        "cómo funciona",
+        "simulador",
+        "ia",
+        "libros",
+        "egel"
+    ]
+
+    return (
+        len(msg.split()) <= 12
+        or any(p in msg for p in simple_patterns)
+    )
+
 class LocalAgent:
     def __init__(self, name, prompt_path):
         self.name = name
@@ -23,14 +59,26 @@ class LocalAgent:
         return f"Eres el agente {self.name}. Responde profesionalmente."
 
     def run(self, message: str, session: dict):
-        messages = [{"role": "system", "content": self.prompt}]
-        messages.extend(session.get("history", []))
-        messages.append({"role": "user", "content": message})
+        import time
+        start = time.time()
+
+        if is_fast_message(message):
+            messages = [
+                {"role": "system", "content": FAST_PROMPT},
+                {"role": "user", "content": message}
+            ]
+        else:
+            messages = [{"role": "system", "content": self.prompt}]
+            # SOLO últimos 4 mensajes del historial para performance
+            history = session.get("history", [])[-4:]
+            messages.extend(history)
+            messages.append({"role": "user", "content": message})
 
         payload = {
             "model": MODEL,
             "messages": messages,
-            "temperature": 0.7
+            "temperature": 0.4,
+            "max_tokens": 120
         }
 
         try:
@@ -40,15 +88,17 @@ class LocalAgent:
                 headers={"Content-Type": "application/json"}
             )
 
-            # Gemma puede ser lento, usamos 60s de timeout
-            with urllib.request.urlopen(req, timeout=60) as response:
+            # Gemma optimizada: 45s timeout
+            with urllib.request.urlopen(req, timeout=45) as response:
                 result = json.loads(response.read().decode("utf-8"))
 
                 if "choices" not in result:
                     print("[ERROR LM] respuesta inválida:", result)
                     return "Perdón 😅 tuve un pequeño retraso procesando tu mensaje. ¿Me lo repites rapidísimo?"
 
-                return result["choices"][0]["message"]["content"]
+                content = result["choices"][0]["message"]["content"]
+                print(f"⚡ Tiempo IA: {time.time() - start:.2f}s")
+                return content
 
         except Exception as e:
             print(f"[ERROR AGENTE {self.name}]:", e)
@@ -267,10 +317,10 @@ def run_pipeline(session_id: str, session: dict, message: str):
 
         # ===== HISTORIAL =====
         session["history"].append({"role": "user", "content": message})
-        session["history"].append({"role": "assistant", "content": raw_response})
+        session["history"].append({"role": "assistant", "content": clean_msg})
 
-        if len(session["history"]) > 10:
-            session["history"] = session["history"][-10:]
+        if len(session["history"]) > 6:
+            session["history"] = session["history"][-6:]
 
         print(f"📊 Etapa: {session['etapa']}")
         print(f"🎯 Producto: {session.get('producto')}")
