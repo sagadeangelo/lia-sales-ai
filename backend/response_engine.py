@@ -22,6 +22,14 @@ CAREERS = [
     "comercio"
 ]
 
+STRONG_INTENTS = [
+    "egel_interest",
+    "lia_interest",
+    "egel_pricing",
+    "lia_pricing",
+    "pricing"
+]
+
 EGEL_RESPONSES = {
     "intro": """¡Claro! 🎓 Nuestro simulador EGEL [CARRERA] incluye:
 • preguntas tipo CENEVAL

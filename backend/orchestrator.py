@@ -4,7 +4,7 @@ import os
 
 from config.precios import PRODUCTOS
 from crm.manager import update_lead, register_sale
-from response_engine import detect_intent, get_template_response, detect_career
+from response_engine import detect_intent, get_template_response, detect_career, STRONG_INTENTS
 from sales_flows import advance_flow
 
 # CONFIGURACIÓN IA (LM STUDIO / OLLAMA)
@@ -140,25 +140,43 @@ def run_pipeline(session_id: str, session: dict, message: str):
     session.setdefault("sales_stage", "idle")
     current_stage = session.get("sales_stage", "idle")
 
-    # 1. ROUTER (Detección de intención y carrera)
-    # Sticky Context: Priorizar carrera y contexto ya detectados si existen
-    career = detect_career(message)
-    if career:
-        session["career"] = career
+    intent = detect_intent(message)
+    print(f"\n[ROUTER] Raw Intent: {intent}")
+
+    # 1. SOFT MEMORY / INTENT OVERRIDE
+    # Si detectamos un intent FUERTE que no coincide con el contexto actual, cambiamos.
+    if intent in STRONG_INTENTS:
+        if "egel" in intent and contexto != "egel":
+            print(f"[OVERRIDE] Usuario cambió a EGEL. Reseteando flow.")
+            contexto = "egel"
+            session["contexto"] = "egel"
+            session["sales_stage"] = "idle" # Reiniciar para capturar el nuevo interés
+            current_stage = "idle"
+        elif "lia" in intent and contexto != "lia_staylo":
+            print(f"[OVERRIDE] Usuario cambió a LIA. Reseteando flow.")
+            contexto = "lia_staylo"
+            session["contexto"] = "lia_staylo"
+            session["career"] = None # Limpiar carrera si cambia a LIA
+            session["sales_stage"] = "idle"
+            current_stage = "idle"
+            career = None
+
+    # 2. ROUTER - Carrera (Sticky Context mejorado)
+    new_career = detect_career(message)
+    if new_career:
+        session["career"] = new_career
         session["contexto"] = "egel"
         contexto = "egel"
-        print(f"[CAREER] Nueva detección: {career} -> Forzando contexto EGEL")
+        career = new_career
+        print(f"[CAREER] Nueva detección: {new_career} -> Forzando contexto EGEL")
     else:
-        # Si no hay nueva carrera, recuperar la de la sesión
-        career = session.get("career")
-        contexto = session.get("contexto", "general")
-        if career:
-            print(f"[STICKY] Manteniendo Carrera: {career} | Contexto: {contexto}")
+        # Si no hay nueva carrera, recuperar la de la sesión (solo si seguimos en EGEL)
+        if contexto == "egel":
+            career = session.get("career")
+            if career:
+                print(f"[STICKY] Manteniendo Carrera: {career}")
 
-    intent = detect_intent(message)
-    print(f"\n[ROUTER] Intent: {intent} | Context: {contexto}")
-
-    # 2. AGENTE ESTRATÉGICO (Análisis comercial con Memoria)
+    # 3. AGENTE ESTRATÉGICO (Análisis comercial con Memoria)
     agente_actual_id = session.get("agente_actual", "agente_1")
     agents_map = {
         "agente_1": agente_1,

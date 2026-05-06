@@ -113,7 +113,7 @@
         "nombre": "",
         "carrera": "Psicología",
         "producto_actual": "EGEL",
-        "etapa": "project_type",
+        "etapa": "interest",
         "estado": "activo",
         "productos_interes": [],
         "historial": [
@@ -166,10 +166,15 @@
                 "fecha": "2026-05-05T21:23:55.812556",
                 "user": "en 3 meses",
                 "bot": "🔥 Suena increíble. LIA está diseñada justamente para acelerar procesos creativos sin perder tu estilo. Muchos usuarios la usan para: • novelas • sagas • universos ficticios • storytelling inmersivo ¿Ya tienes una historia iniciada o empezarías desde cero?"
+            },
+            {
+                "fecha": "2026-05-05T21:30:11.691702",
+                "user": "que es LIA?",
+                "bot": "¡Claro! ⚖️ Nuestro simulador EGEL Derecho incluye: • preguntas tipo CENEVAL • temporizador real • análisis inteligente • práctica por áreas ¿Ya sabes cuándo presentarás el examen?"
             }
         ],
         "ventas": [],
         "fecha_creacion": "2026-05-05T20:49:20.613064",
-        "ultima_interaccion": "2026-05-05T21:23:55.826995"
+        "ultima_interaccion": "2026-05-05T21:30:11.715340"
     }
 }
