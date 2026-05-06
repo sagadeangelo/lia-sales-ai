@@ -111,9 +111,9 @@
     "user_chi8qhlms": {
         "session_id": "user_chi8qhlms",
         "nombre": "",
-        "carrera": "Enfermería",
+        "carrera": "Derecho",
         "producto_actual": "EGEL",
-        "etapa": "interest",
+        "etapa": "exam_date",
         "estado": "activo",
         "productos_interes": [],
         "historial": [
@@ -181,10 +181,20 @@
                 "fecha": "2026-05-05T21:41:42.922552",
                 "user": "cuanto cuesta la guia de enfermeria?",
                 "bot": "¡Claro! ⚖️ Nuestro simulador EGEL Derecho incluye: • preguntas tipo CENEVAL • temporizador real • análisis inteligente • práctica por áreas ¿Ya sabes cuándo presentarás el examen?"
+            },
+            {
+                "fecha": "2026-05-05T21:46:38.563191",
+                "user": "hola hola",
+                "bot": "¡Claro! ⚖️ Nuestro simulador EGEL Derecho incluye: • preguntas tipo CENEVAL • temporizador real • análisis inteligente • práctica por áreas ¿Ya sabes cuándo presentarás el examen?"
+            },
+            {
+                "fecha": "2026-05-05T21:47:32.537704",
+                "user": "quiero comprar la guia de derecho.",
+                "bot": "Perfecto ⚖️ Es muy buen tiempo para prepararte bien. La mayoría empieza practicando para detectar en qué áreas anda más débil. ¿Ya has hecho algún simulador EGEL antes?"
             }
         ],
         "ventas": [],
         "fecha_creacion": "2026-05-05T20:49:20.613064",
-        "ultima_interaccion": "2026-05-05T21:41:42.939853"
+        "ultima_interaccion": "2026-05-05T21:47:32.564478"
     }
 }
