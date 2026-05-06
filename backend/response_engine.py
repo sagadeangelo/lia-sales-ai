@@ -30,21 +30,53 @@ STRONG_INTENTS = [
     "pricing"
 ]
 
-EGEL_RESPONSES = {
-    "intro": """¡Claro! 🎓 Nuestro simulador EGEL [CARRERA] incluye:
-• preguntas tipo CENEVAL
-• temporizador real
-• análisis inteligente
-• práctica por áreas
-
-¿Ya sabes cuándo presentarás el examen?""",
-
-    "precio": """💳 Tenemos acceso completo al simulador, entrenamiento y materiales de apoyo para [CARRERA].
-
-¿Quieres que te explique qué incluye exactamente?""",
-
-    "urgencia": """🔥 Si ya presentarás pronto el examen de [CARRERA], te recomiendo empezar cuanto antes para medir tu nivel real."""
+CAREER_DATA = {
+    "Derecho": {
+        "features": "• preguntas tipo CENEVAL\n• temporizador real\n• análisis inteligente\n• práctica por áreas",
+        "pricing": "acceso completo al simulador, entrenamiento y materiales de apoyo",
+        "cta": "¿Ya sabes cuándo presentarás el examen?",
+        "emoji": "⚖️"
+    },
+    "Enfermería": {
+        "features": "• casos clínicos actualizados\n• fundamentos de enfermería\n• gestión de salud\n• práctica por áreas críticas",
+        "pricing": "guías de estudio y simuladores especializados",
+        "cta": "¿Ya tienes fecha para tu examen de enfermería?",
+        "emoji": "🩺"
+    },
+    "Psicología": {
+        "features": "• evaluación psicológica\n• intervención clínica\n• bases biológicas\n• simulaciones tipo EGEL",
+        "pricing": "banco de preguntas y herramientas de análisis",
+        "cta": "¿Te gustaría empezar a practicar con los casos clínicos?",
+        "emoji": "🧠"
+    },
+    "Administración": {
+        "features": "• mercadotecnia y finanzas\n• recursos humanos\n• administración estratégica\n• simulador tiempo real",
+        "pricing": "paquete completo de entrenamiento estratégico",
+        "cta": "¿Quieres ver los temas que incluye el simulador de administración?",
+        "emoji": "📊"
+    },
+    "Contaduría": {
+        "features": "• normas de información financiera\n• auditoría y fiscal\n• contabilidad de costos\n• práctica tipo CENEVAL",
+        "pricing": "acceso total al sistema de práctica contable",
+        "cta": "¿Te gustaría ver un demo del simulador contable?",
+        "emoji": "💼"
+    }
 }
+
+def build_egel_response(career_name, type="intro"):
+    data = CAREER_DATA.get(career_name, CAREER_DATA["Derecho"])
+    emoji = data.get("emoji", "🎓")
+    
+    if type == "intro":
+        return f"¡Claro! {emoji} Nuestro simulador EGEL {career_name} incluye:\n{data['features']}\n\n{data['cta']}"
+    
+    if type == "precio":
+        return f"💳 Tenemos {data['pricing']} para {career_name}. ¿Quieres que te explique qué incluye exactamente?"
+    
+    if type == "urgencia":
+        return f"🔥 Si ya presentarás pronto el examen de {career_name}, te recomiendo empezar cuanto antes para medir tu nivel real."
+    
+    return f"¡Claro! 😊 Estamos listos para ayudarte con tu preparación para el EGEL {career_name}."
 
 LIA_RESPONSES = {
     "intro": """✨ LIA es una plataforma de IA para escritores y creadores.
@@ -122,21 +154,17 @@ def detect_intent(message):
 
     return "general"
 
-def format_template(text, career=None):
-    if not career:
-        career = "Derecho" # Default si no se detecta nada pero es EGEL
-    return text.replace("[CARRERA]", career)
-
 def get_template_response(intent, context="general", career=None):
-    response = ""
+    if not career:
+        career = "Derecho" # Fallback si no hay carrera en sesión
+
     if "egel" in intent or context == "egel":
         if "pricing" in intent or "precio" in intent:
-            response = EGEL_RESPONSES["precio"]
+            return build_egel_response(career, "precio")
         elif "urgency" in intent:
-            response = EGEL_RESPONSES["urgencia"]
+            return build_egel_response(career, "urgencia")
         else:
-            response = EGEL_RESPONSES["intro"]
-        return format_template(response, career)
+            return build_egel_response(career, "intro")
         
     if "lia" in intent or context == "lia_staylo":
         if "pricing" in intent or "precio" in intent:

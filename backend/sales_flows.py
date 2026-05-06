@@ -3,7 +3,7 @@ EGEL_FLOW = {
         "next": "interest"
     },
     "interest": {
-        "response": """¡Claro! ⚖️ Nuestro simulador EGEL Derecho incluye:
+        "response": """¡Claro! [EMOJI] Nuestro simulador EGEL [CARRERA] incluye:
 • preguntas tipo CENEVAL
 • temporizador real
 • análisis inteligente
@@ -13,7 +13,7 @@ EGEL_FLOW = {
         "next": "exam_date"
     },
     "exam_date": {
-        "response": """Perfecto ⚖️ Es muy buen tiempo para prepararte bien.
+        "response": """Perfecto [EMOJI] Es muy buen tiempo para prepararte bien.
 
 La mayoría empieza practicando para detectar en qué áreas anda más débil.
 
@@ -33,7 +33,7 @@ Nuestro sistema te muestra:
         "next": "pain_point"
     },
     "pain_point": {
-        "response": """Te entiendo ⚖️ Mucha gente batalla justo con esa parte al inicio.
+        "response": """Te entiendo [EMOJI] Mucha gente batalla justo con esa parte al inicio.
 
 La ventaja del simulador es que puedes practicar por áreas y repetir ejercicios hasta sentir más seguridad.
 
@@ -137,14 +137,19 @@ def advance_flow(session, intent, product_context, career=None):
 
     response = flow.get(next_stage, {}).get("response")
     
-    # Reemplazo dinámico de carrera si existe
-    if response and "[CARRERA]" in response:
+    # Reemplazo dinámico de carrera y emoji si existe
+    if product_context == "egel" and response:
         career_name = career if career else "Derecho"
+        from response_engine import CAREER_DATA
+        career_info = CAREER_DATA.get(career_name, CAREER_DATA["Derecho"])
+        
         response = response.replace("[CARRERA]", career_name)
+        response = response.replace("[EMOJI]", career_info.get("emoji", "🎓"))
     
     # Actualizar sesión
     session["sales_stage"] = next_stage
     
     print(f"[FLOW] {current_stage} -> {next_stage}")
+    print(f"[CAREER DETECTED] {career}")
     
     return response, next_stage
