@@ -4,7 +4,7 @@ import os
 
 from config.precios import PRODUCTOS
 from crm.manager import update_lead, register_sale
-from response_engine import detect_intent, get_template_response
+from response_engine import detect_intent, get_template_response, detect_career
 from sales_flows import advance_flow
 
 # CONFIGURACIÓN IA (LM STUDIO / OLLAMA)
@@ -129,38 +129,6 @@ def parse_strategic_json(response: str):
 
 
 # =========================
-# DETECCIÓN
-# =========================
-
-def detectar_carrera(message):
-    msg = message.lower()
-
-    if "derecho" in msg:
-        return "Derecho"
-    if "administracion" in msg or "admin" in msg:
-        return "Administración"
-    if "contaduria" in msg or "contabilidad" in msg:
-        return "Contaduría"
-
-    return None
-
-
-def detectar_intencion(message):
-    msg = message.lower()
-
-    if any(x in msg for x in ["comprar", "pagar", "lo quiero", "donde compro"]):
-        return "compra"
-
-    if any(x in msg for x in ["precio", "cuanto cuesta", "costo"]):
-        return "precio"
-
-    if any(x in msg for x in ["interesado", "me interesa"]):
-        return "interes"
-
-    return None
-
-
-# =========================
 # PIPELINE HÍBRIDO
 # =========================
 
@@ -173,7 +141,14 @@ def run_pipeline(session_id: str, session: dict, message: str):
     contexto = session.get("contexto", "general")
     current_stage = session.get("sales_stage", "idle")
     
-    # 1. ROUTER (Detección de intención)
+    # 1. ROUTER (Detección de intención y carrera)
+    career = detect_career(message)
+    if career:
+        session["career"] = career
+        session["contexto"] = "egel"
+        contexto = "egel"
+        print(f"[CAREER] Detectada: {career} -> Forzando contexto EGEL")
+
     intent = detect_intent(message)
     print(f"\n[ROUTER] Intent: {intent} | Context: {contexto}")
 
@@ -196,12 +171,14 @@ def run_pipeline(session_id: str, session: dict, message: str):
     response_type = strategy_data.get("response_type", "template")
     
     if strategy_data.get("detected_context"):
-        session["contexto"] = strategy_data.get("detected_context")
-        contexto = session["contexto"]
+        # Solo sobreescribir contexto si no es una carrera ya detectada
+        if not career:
+            session["contexto"] = strategy_data.get("detected_context")
+            contexto = session["contexto"]
 
     # 3. SALES FLOW ENGINE (Guiar conversación)
     # El engine decide la respuesta basada en el flow predefinido
-    flow_response, next_stage = advance_flow(session, detected_intent, contexto)
+    flow_response, next_stage = advance_flow(session, detected_intent, contexto, career=session.get("career"))
     
     print(f"[FLOW] {current_stage} -> {next_stage}")
     print(f"[INTENT] {detected_intent}")
@@ -221,7 +198,7 @@ def run_pipeline(session_id: str, session: dict, message: str):
 
     # Fallback de seguridad
     if not clean_msg:
-        clean_msg = flow_response if flow_response else get_template_response("fallback", contexto)
+        clean_msg = flow_response if flow_response else get_template_response("fallback", contexto, career=session.get("career"))
 
     # ===== LEAD SCORING & CRM =====
     score = session.get("lead_score", 0)
@@ -242,7 +219,8 @@ def run_pipeline(session_id: str, session: dict, message: str):
         "etapa": next_stage,
         "lead_score": score,
         "lead_nivel": session["lead_nivel"],
-        "ultimo_contexto": contexto
+        "ultimo_contexto": contexto,
+        "carrera": session.get("career")
     })
 
     # ===== HISTORIAL =====

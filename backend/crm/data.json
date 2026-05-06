@@ -113,7 +113,7 @@
         "nombre": "",
         "carrera": null,
         "producto_actual": "EGEL",
-        "etapa": "captura",
+        "etapa": "project_type",
         "estado": "activo",
         "productos_interes": [],
         "historial": [
@@ -146,10 +146,20 @@
                 "fecha": "2026-05-05T21:13:25.095661",
                 "user": "en tres meses",
                 "bot": "¡Claro! 😊 Cuéntame más sobre lo que buscas para poder ayudarte mejor."
+            },
+            {
+                "fecha": "2026-05-05T21:18:11.125174",
+                "user": "hola, quiero comprar una guia de derecho.",
+                "bot": "✨ LIA es una plataforma de IA enfocada en escritores y creadores. Puedes: • crear libros inmersivos • desarrollar personajes • generar historias • construir mundos • usar asistentes IA personalizados ¿Qué tipo de proyecto te gustaría crear?"
+            },
+            {
+                "fecha": "2026-05-05T21:19:30.083662",
+                "user": "quiero comprar una guia de psicologia",
+                "bot": "🔥 Suena increíble. LIA está diseñada justamente para acelerar procesos creativos sin perder tu estilo. Muchos usuarios la usan para: • novelas • sagas • universos ficticios • storytelling inmersivo ¿Ya tienes una historia iniciada o empezarías desde cero?"
             }
         ],
         "ventas": [],
         "fecha_creacion": "2026-05-05T20:49:20.613064",
-        "ultima_interaccion": "2026-05-05T21:13:25.111689"
+        "ultima_interaccion": "2026-05-05T21:19:30.104022"
     }
 }

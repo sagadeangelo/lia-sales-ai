@@ -116,7 +116,7 @@ El sistema ayuda a:
     }
 }
 
-def advance_flow(session, intent, product_context):
+def advance_flow(session, intent, product_context, career=None):
     """
     Avanza el flujo comercial basado en el producto y el estado actual.
     """
@@ -136,6 +136,11 @@ def advance_flow(session, intent, product_context):
         return None, "done"
 
     response = flow.get(next_stage, {}).get("response")
+    
+    # Reemplazo dinámico de carrera si existe
+    if response and "[CARRERA]" in response:
+        career_name = career if career else "Derecho"
+        response = response.replace("[CARRERA]", career_name)
     
     # Actualizar sesión
     session["sales_stage"] = next_stage
