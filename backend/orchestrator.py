@@ -5,9 +5,10 @@ import os
 from config.precios import PRODUCTOS
 from crm.manager import update_lead, register_sale
 
-LMSTUDIO_URL = "http://127.0.0.1:1234/v1/chat/completions"
-MODEL_NAME = "qwen"
-
+# CONFIGURACIÓN IA (LM STUDIO / OLLAMA)
+BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:1234")
+MODEL = os.getenv("OLLAMA_MODEL", "google/gemma-4-e4b")
+LMSTUDIO_URL = f"{BASE_URL}/v1/chat/completions"
 
 class LocalAgent:
     def __init__(self, name, prompt_path):
@@ -27,7 +28,7 @@ class LocalAgent:
         messages.append({"role": "user", "content": message})
 
         payload = {
-            "model": MODEL_NAME,
+            "model": MODEL,
             "messages": messages,
             "temperature": 0.7
         }
@@ -39,7 +40,8 @@ class LocalAgent:
                 headers={"Content-Type": "application/json"}
             )
 
-            with urllib.request.urlopen(req, timeout=20) as response:
+            # Gemma puede ser lento, usamos 60s de timeout
+            with urllib.request.urlopen(req, timeout=60) as response:
                 result = json.loads(response.read().decode("utf-8"))
 
                 if "choices" not in result:

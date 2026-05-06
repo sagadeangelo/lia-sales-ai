@@ -3,11 +3,12 @@ from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from datetime import datetime
-from orchestrator import run_pipeline
+from orchestrator import run_pipeline, MODEL, BASE_URL
 from crm.manager import add_historial, update_lead
 from crm.storage import load_data
 import traceback
 import uuid
+import os
 
 # =========================================================
 # APP
@@ -18,6 +19,12 @@ app = FastAPI(
     version="2.0.0",
     description="Sistema Inteligente Conversacional"
 )
+
+print("\n" + "="*50)
+print(f"🚀 LIA SALES AI INICIANDO")
+print(f"🧠 MODELO ACTIVO: {MODEL}")
+print(f"🌐 API URL: {BASE_URL}")
+print("="*50 + "\n")
 
 # =========================================================
 # CORS
