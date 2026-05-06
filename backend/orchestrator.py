@@ -4,6 +4,7 @@ import os
 
 from config.precios import PRODUCTOS
 from crm.manager import update_lead, register_sale
+from response_engine import detect_intent, get_template_response
 
 # CONFIGURACIÓN IA (LM STUDIO / OLLAMA)
 BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:1234")
@@ -13,7 +14,7 @@ LMSTUDIO_URL = f"{BASE_URL}/v1/chat/completions"
 FAST_PROMPT = """
 Eres LIA.
 Responde corto, útil y humano.
-Máximo 50 palabras.
+Máximo 60 palabras.
 """
 
 def is_fast_message(message):
@@ -51,7 +52,7 @@ class LocalAgent:
                 return f.read()
         return f"Eres el agente {self.name}. Responde profesionalmente."
 
-    def run(self, message: str, session: dict):
+    def run(self, message: str, session: dict, system_override: str = None):
         import time
         import random
         start = time.time()
@@ -63,17 +64,13 @@ class LocalAgent:
             "¡Hola! 👋 Soy LIA. ¿Te interesa el simulador EGEL o herramientas IA?"
         ]
 
-        if is_fast_message(message):
-            messages = [
-                {"role": "system", "content": FAST_PROMPT},
-                {"role": "user", "content": message}
-            ]
-        else:
-            messages = [{"role": "system", "content": self.prompt}]
-            # SOLO últimos 4 mensajes del historial para performance
-            history = session.get("history", [])[-4:]
-            messages.extend(history)
-            messages.append({"role": "user", "content": message})
+        system_content = system_override if system_override else self.prompt
+        
+        messages = [{"role": "system", "content": system_content}]
+        # SOLO últimos 4 mensajes del historial para performance
+        history = session.get("history", [])[-4:]
+        messages.extend(history)
+        messages.append({"role": "user", "content": message})
 
         payload = {
             "model": MODEL,
@@ -90,13 +87,10 @@ class LocalAgent:
                 headers={"Content-Type": "application/json"}
             )
 
-            # Gemma optimizada: 45s timeout
-            with urllib.request.urlopen(req, timeout=45) as response:
+            # Gemma optimizada: 30s timeout para arquitectura híbrida
+            with urllib.request.urlopen(req, timeout=30) as response:
                 result = json.loads(response.read().decode("utf-8"))
                 
-                # DEBUG: Ver respuesta completa de LM Studio
-                print(json.dumps(result, indent=2, ensure_ascii=False))
-
                 if "choices" not in result or not result["choices"]:
                     print("[ERROR LM] respuesta inválida:", result)
                     return random.choice(fallbacks)
@@ -120,30 +114,17 @@ class LocalAgent:
 # PARSER
 # =========================
 
-def parse_response(response: str):
-    # Si es el mensaje de fallback, no intentar parsear JSON
-    if "retraso procesando tu mensaje" in response:
-        return response, {}
-        
+def parse_strategic_json(response: str):
     try:
-        if "---MENSAJE---" in response and "---JSON---" in response:
-
-            parts = response.split("---JSON---")
-
-            mensaje = parts[0].replace("---MENSAJE---", "").strip()
-            json_str = parts[1].strip()
-
-            try:
-                json_data = json.loads(json_str)
-            except:
-                json_data = {}
-
-            return mensaje, json_data
-
-        return response.strip(), {}
-
+        # Intentar encontrar JSON en el texto si hay ruido
+        if "{" in response and "}" in response:
+            start = response.find("{")
+            end = response.rfind("}") + 1
+            json_str = response[start:end]
+            return json.loads(json_str)
+        return {}
     except:
-        return response.strip(), {}
+        return {}
 
 
 # =========================
@@ -179,185 +160,97 @@ def detectar_intencion(message):
 
 
 # =========================
-# PIPELINE
+# PIPELINE HÍBRIDO
 # =========================
 
 def run_pipeline(session_id: str, session: dict, message: str):
-
+    import time
+    start_total = time.time()
+    
     session.setdefault("history", [])
     contexto = session.get("contexto", "general")
+    etapa = session.get("etapa", "captura")
     
-    print(f"\n[PIPELINE] Contexto Activo: {contexto}")
+    # 1. ROUTER (Rápido)
+    intent = detect_intent(message)
+    print(f"\n[ROUTER] Intent: {intent} | Contexto: {contexto}")
 
-    # 🔥 PRIORIDAD ABSOLUTA DEL CONTEXTO
-    if contexto == "egel":
-        if not session.get("producto") or "LIA" in str(session.get("producto")):
-            session["producto"] = "EGEL_DERECHO" # Default
-    elif contexto == "lia_staylo":
-        session["producto"] = "LIA_STAYLO"
-
-    # ===== DETECTAR CARRERA (Solo si es EGEL) =====
-    if contexto == "egel":
-        carrera = detectar_carrera(message)
-        if carrera:
-            session["carrera"] = carrera
-            session["producto"] = f"EGEL_{carrera.upper()}"
-
-    # ===== SALTO CAPTURA =====
-    if session.get("carrera") and session.get("agente_actual") == "agente_1":
-        session["agente_actual"] = "agente_2"
-
-    agente_actual = session.get("agente_actual", "agente_1")
-    print(f">>> AGENTE: {agente_actual}")
-
+    # 2. AGENTE ESTRATÉGICO (IA Análisis)
+    agente_actual_id = session.get("agente_actual", "agente_1")
     agents_map = {
         "agente_1": agente_1,
         "agente_2": agente_2,
-        "agente_3": agente_3,
-        "agente_4": agente_4,
-        "agente_5": agente_5,
-        "agente_6": agente_6,
-        "agente_7": agente_7,
-        "agente_8": agente_8
+        "agente_3": agente_3
     }
+    agente_estrat = agents_map.get(agente_actual_id, agente_1)
+    
+    print(f"[STRATEGY] Analizando con {agente_estrat.name}...")
+    strategy_raw = agente_estrat.run(message, session)
+    strategy_data = parse_strategic_json(strategy_raw)
+    
+    # Actualizar estado desde estrategia
+    detected_intent = strategy_data.get("intent", intent)
+    lead_stage = strategy_data.get("lead_stage", etapa)
+    next_action = strategy_data.get("next_action", "")
+    response_type = strategy_data.get("response_type", "template")
+    
+    if strategy_data.get("detected_context"):
+        session["contexto"] = strategy_data.get("detected_context")
+        contexto = session["contexto"]
 
-    agente = agents_map.get(agente_actual, agente_1)
+    session["etapa"] = lead_stage
+    print(f"[STATE] Stage: {lead_stage} | Intent: {detected_intent} | Next: {next_action}")
 
-    try:
-        raw_response = agente.run(message, session)
-        clean_msg, json_data = parse_response(raw_response)
+    # 3. RESPONSE GENERATION (Template vs Fast IA)
+    clean_msg = ""
+    
+    if response_type == "template":
+        print("[RESPONSE] Usando Template...")
+        clean_msg = get_template_response(detected_intent, contexto)
+    else:
+        print("[RESPONSE] Generando Fast IA...")
+        clean_msg = agente_estrat.run(message, session, system_override=FAST_PROMPT)
 
-        # Si hubo error de fallback, no procesar más lógica de sesión
-        if "retraso procesando tu mensaje" in clean_msg:
-            return clean_msg
+    # Fallback si por algo queda vacío
+    if not clean_msg or len(clean_msg.strip()) < 2:
+        clean_msg = get_template_response("fallback", contexto)
 
-        # ===== INTENCIÓN =====
-        intencion = detectar_intencion(message)
+    # ===== LEAD SCORING (Lógica Simplificada) =====
+    score = session.get("lead_score", 0)
+    if "pricing" in detected_intent: score += 2
+    if "urgency" in detected_intent: score += 3
+    if lead_stage == "warm": score += 2
+    if lead_stage == "hot": score += 5
+    session["lead_score"] = score
+    session["lead_nivel"] = "HOT" if score >= 7 else "WARM" if score >= 4 else "COLD"
 
-        # ===== LEAD SCORING =====
-        score = 0
-        if intencion == "compra":
-            score += 5
-        if intencion == "precio":
-            score += 3
-        if session.get("urgencia") == "alta":
-            score += 3
-        if len(session.get("history", [])) > 4:
-            score += 2
+    # ===== CRM UPDATE =====
+    update_lead(session_id, {
+        "etapa": lead_stage,
+        "lead_score": score,
+        "lead_nivel": session["lead_nivel"],
+        "ultimo_contexto": contexto
+    })
 
-        session["lead_score"] = score
+    # ===== HISTORIAL =====
+    session["history"].append({"role": "user", "content": message})
+    session["history"].append({"role": "assistant", "content": clean_msg})
+    if len(session["history"]) > 6:
+        session["history"] = session["history"][-6:]
 
-        if score >= 7:
-            session["lead_nivel"] = "HOT"
-        elif score >= 4:
-            session["lead_nivel"] = "WARM"
-        else:
-            session["lead_nivel"] = "COLD"
-
-        # ===== PRODUCTOS =====
-        producto_key = session.get("producto")
-
-        if producto_key in PRODUCTOS:
-            producto = PRODUCTOS[producto_key]
-
-            clean_msg = clean_msg.replace("[PRODUCTO]", producto["nombre"])
-            clean_msg = clean_msg.replace("[precio]", str(producto["precio"]))
-            clean_msg = clean_msg.replace("[descripcion]", producto["descripcion"])
-
-            session["precio"] = producto["precio"]
-
-        # ===== CRM LIMPIO =====
-        allowed_keys = ["nombre", "carrera", "producto", "precio", "etapa", "mayor_dolor", "urgencia", "lead_score", "lead_nivel"]
-
-        clean_data = {k: v for k, v in json_data.items() if k in allowed_keys}
-        
-        # Guardar score en CRM
-        clean_data["lead_score"] = session.get("lead_score")
-        clean_data["lead_nivel"] = session.get("lead_nivel")
-
-        if clean_data:
-            update_lead(session_id, clean_data)
-
-        # ===== SESSION UPDATE =====
-        for k, v in json_data.items():
-            if k not in ["agente", "siguiente_agente"]:
-                session[k] = v
-
-        # ===== CONTROL FLUJO =====
-        siguiente = json_data.get("siguiente_agente")
-
-        if intencion == "precio":
-            siguiente = "agente_4"
-
-        if intencion == "compra" or session.get("lead_nivel") == "HOT":
-            siguiente = "agente_7"
-
-        if siguiente:
-            session["agente_actual"] = siguiente
-
-        # ===== ETAPA =====
-        etapa_map = {
-            "agente_1": "captura",
-            "agente_2": "calificacion",
-            "agente_3": "nurturing",
-            "agente_4": "objeciones",
-            "agente_5": "cierre",
-            "agente_6": "revision",
-            "agente_7": "venta",
-            "agente_8": "postventa"
-        }
-
-        session["etapa"] = etapa_map.get(session["agente_actual"], "captura")
-
-        # ===== REGISTRAR VENTA =====
-        if session.get("agente_actual") == "agente_7" and not session.get("venta_registrada"):
-
-            producto = session.get("producto")
-            precio = session.get("precio")
-
-            if producto and precio:
-                register_sale(
-                    session_id=session_id,
-                    producto=producto,
-                    precio=precio,
-                    carrera=session.get("carrera")
-                )
-
-                session["venta_registrada"] = True
-                print("💰 VENTA REGISTRADA")
-
-        # ===== HISTORIAL =====
-        session["history"].append({"role": "user", "content": message})
-        session["history"].append({"role": "assistant", "content": clean_msg})
-
-        if len(session["history"]) > 6:
-            session["history"] = session["history"][-6:]
-
-        print(f"📊 Etapa: {session['etapa']}")
-        print(f"🎯 Producto: {session.get('producto')}")
-        print(f"🔥 Lead Score: {session.get('lead_score')}")
-        print(f"🎯 Nivel: {session.get('lead_nivel')}")
-        print(f"➡️ Siguiente: {session.get('agente_actual')}")
-
-        return clean_msg
-
-    except Exception as e:
-        print("[ERROR CRÍTICO]:", e)
-        return "Perdón 😅 tuve un pequeño retraso procesando tu mensaje. ¿Me lo repites rapidísimo?"
+    elapsed_total = time.time() - start_total
+    print(f"⚡ Tiempo Total Pipeline: {elapsed_total:.2f}s")
+    
+    return clean_msg
 
 
 # =========================
-# AGENTES
+# AGENTES ESTRATÉGICOS
 # =========================
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROMPTS_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "agentes", "prompts"))
 
-agente_1 = LocalAgent("agente_1", os.path.join(PROMPTS_DIR, "agente_1_captura.md"))
-agente_2 = LocalAgent("agente_2", os.path.join(PROMPTS_DIR, "agente_2_calificacion.md"))
-agente_3 = LocalAgent("agente_3", os.path.join(PROMPTS_DIR, "agente_3_nurturing.md"))
-agente_4 = LocalAgent("agente_4", os.path.join(PROMPTS_DIR, "agente_4_objeciones.md"))
-agente_5 = LocalAgent("agente_5", os.path.join(PROMPTS_DIR, "agente_5_propuesta.md"))
-agente_6 = LocalAgent("agente_6", os.path.join(PROMPTS_DIR, "agente_6_revision_humana.md"))
-agente_7 = LocalAgent("agente_7", os.path.join(PROMPTS_DIR, "agente_7_cierre.md"))
-agente_8 = LocalAgent("agente_8", os.path.join(PROMPTS_DIR, "agente_8_postventa.md"))
+agente_1 = LocalAgent("agente_1", os.path.join(PROMPTS_DIR, "agente_1_estrategico.md"))
+agente_2 = LocalAgent("agente_2", os.path.join(PROMPTS_DIR, "agente_2_estrategico.md"))
+agente_3 = LocalAgent("agente_3", os.path.join(PROMPTS_DIR, "agente_3_estrategico.md"))

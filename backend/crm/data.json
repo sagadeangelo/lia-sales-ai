@@ -126,10 +126,20 @@
                 "fecha": "2026-05-05T20:57:15.061055",
                 "user": "si, quiero saber mas acerca de lia",
                 "bot": ""
+            },
+            {
+                "fecha": "2026-05-05T21:01:57.509357",
+                "user": "me podrias hablar mas de que es LIA?",
+                "bot": "¡Va! ⚡ Te explico rapidísimo."
+            },
+            {
+                "fecha": "2026-05-05T21:03:59.552174",
+                "user": "estoy interesado en una guia de derecho.",
+                "bot": "Sí 😊 puedo ayudarte con eso."
             }
         ],
         "ventas": [],
         "fecha_creacion": "2026-05-05T20:49:20.613064",
-        "ultima_interaccion": "2026-05-05T20:57:15.075547"
+        "ultima_interaccion": "2026-05-05T21:03:59.564874"
     }
 }
