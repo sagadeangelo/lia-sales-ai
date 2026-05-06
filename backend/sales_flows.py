@@ -233,22 +233,44 @@ Puedes preguntarme:
 
 
 # ==========================================
-# INTENT → STAGE MAP
+# INTENT MAP
 # ==========================================
 
 INTENT_STAGE_MAP = {
 
-    "pricing_question": "pricing",
-
-    "buy_intent": "closing",
-
-    "fear_failure": "trust",
-
-    "confused": "presentation",
+    # =========================
+    # EGEL
+    # =========================
 
     "egel_interest": "interest",
 
-    "lia_interest": "interest"
+    "egel_pricing": "pricing",
+
+    "egel_buy_intent": "closing",
+
+    "egel_fear": "trust",
+
+    "egel_exam_date": "exam_date",
+
+    "egel_experience": "experience",
+
+    "egel_pain": "pain_point",
+
+    # =========================
+    # LIA
+    # =========================
+
+    "lia_interest": "interest",
+
+    "lia_pricing": "presentation",
+
+    "lia_buy_intent": "closing",
+
+    # =========================
+    # GENERAL
+    # =========================
+
+    "greeting": "interest"
 }
 
 
@@ -258,6 +280,9 @@ INTENT_STAGE_MAP = {
 
 def build_dynamic_response(response, career):
 
+    if not response:
+        return "😅 Perdón, tuve un pequeño problema generando la respuesta."
+
     if not career:
         career = "Derecho"
 
@@ -265,7 +290,7 @@ def build_dynamic_response(response, career):
 
     career_info = CAREER_DATA.get(
         career_key,
-        CAREER_DATA.get("derecho")
+        CAREER_DATA.get("derecho", {})
     )
 
     precio = career_info.get("precio", "999")
@@ -286,6 +311,10 @@ def advance_flow(session, intent, product_context, career=None):
 
     try:
 
+        # ==================================
+        # SESSION DATA
+        # ==================================
+
         message = session.get(
             "last_user_message",
             ""
@@ -296,36 +325,38 @@ def advance_flow(session, intent, product_context, career=None):
             "idle"
         )
 
-        # ======================================
+        # ==================================
         # FLOW SELECTION
-        # ======================================
+        # ==================================
 
         if product_context == "lia_staylo":
             flow = LIA_FLOW
         else:
             flow = EGEL_FLOW
 
-        # ======================================
+        # ==================================
+        # DEFAULT NEXT STAGE
+        # ==================================
+
+        next_stage = flow.get(
+            current_stage,
+            {}
+        ).get(
+            "next",
+            "interest"
+        )
+
+        # ==================================
         # INTENT OVERRIDES
-        # ======================================
+        # ==================================
 
         if intent in INTENT_STAGE_MAP:
 
             next_stage = INTENT_STAGE_MAP[intent]
 
-        else:
-
-            next_stage = flow.get(
-                current_stage,
-                {}
-            ).get(
-                "next",
-                "interest"
-            )
-
-        # ======================================
-        # MESSAGE BASED OVERRIDES
-        # ======================================
+        # ==================================
+        # MESSAGE OVERRIDES
+        # ==================================
 
         if "precio" in message:
             next_stage = "pricing"
@@ -333,7 +364,13 @@ def advance_flow(session, intent, product_context, career=None):
         elif "cuanto cuesta" in message:
             next_stage = "pricing"
 
+        elif "costa" in message:
+            next_stage = "pricing"
+
         elif "comprar" in message:
+            next_stage = "closing"
+
+        elif "quiero comprar" in message:
             next_stage = "closing"
 
         elif "me interesa" in message:
@@ -348,24 +385,50 @@ def advance_flow(session, intent, product_context, career=None):
         elif "reprob" in message:
             next_stage = "trust"
 
-        # ======================================
-        # GET RESPONSE
-        # ======================================
+        # ==================================
+        # STAGE VALIDATION
+        # ==================================
 
         stage_data = flow.get(next_stage)
 
         if not stage_data:
+
+            print(f"[FLOW WARNING] Stage inexistente: {next_stage}")
+
+            next_stage = "interest"
+
+            stage_data = flow.get(next_stage)
+
+        # ==================================
+        # RESPONSE VALIDATION
+        # ==================================
+
+        response = stage_data.get("response")
+
+        if not response:
+
+            print(f"[FLOW WARNING] Response vacía en stage: {next_stage}")
+
+            next_stage = "interest"
+
+            stage_data = flow.get(next_stage)
+
+            response = stage_data.get("response")
+
+        # ==================================
+        # FINAL SAFETY CHECK
+        # ==================================
+
+        if not response:
 
             return (
                 "😅 Perdón, tuve un pequeño problema continuando la conversación.",
                 current_stage
             )
 
-        response = stage_data.get("response")
-
-        # ======================================
-        # DYNAMIC CAREER REPLACEMENT
-        # ======================================
+        # ==================================
+        # DYNAMIC REPLACEMENTS
+        # ==================================
 
         if product_context != "lia_staylo":
 
@@ -374,24 +437,24 @@ def advance_flow(session, intent, product_context, career=None):
                 career
             )
 
-        # ======================================
-        # SAVE SESSION STATE
-        # ======================================
+        # ==================================
+        # SAVE SESSION
+        # ==================================
 
         session["sales_stage"] = next_stage
 
-        # ======================================
+        # ==================================
         # DEBUG LOGS
-        # ======================================
+        # ==================================
 
         print(f"[FLOW] {current_stage} -> {next_stage}")
         print(f"[INTENT] {intent}")
         print(f"[PRODUCT] {product_context}")
         print(f"[CAREER] {career}")
 
-        # ======================================
+        # ==================================
         # RETURN
-        # ======================================
+        # ==================================
 
         return response, next_stage
 

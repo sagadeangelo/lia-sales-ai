@@ -111,9 +111,9 @@
     "user_chi8qhlms": {
         "session_id": "user_chi8qhlms",
         "nombre": "",
-        "carrera": "Derecho",
+        "carrera": "Enfermería",
         "producto_actual": "EGEL",
-        "etapa": "exam_date",
+        "etapa": "idle",
         "estado": "activo",
         "productos_interes": [],
         "historial": [
@@ -191,10 +191,34 @@
                 "fecha": "2026-05-05T21:47:32.537704",
                 "user": "quiero comprar la guia de derecho.",
                 "bot": "Perfecto ⚖️ Es muy buen tiempo para prepararte bien. La mayoría empieza practicando para detectar en qué áreas anda más débil. ¿Ya has hecho algún simulador EGEL antes?"
+            },
+            {
+                "fecha": "2026-05-05T22:16:35.787836",
+                "user": "hola quiero saber mas acerca de la guia de enfermeria.",
+                "bot": "😅 Perdón, tuve un pequeño problema procesando tu mensaje."
             }
         ],
         "ventas": [],
         "fecha_creacion": "2026-05-05T20:49:20.613064",
-        "ultima_interaccion": "2026-05-05T21:47:32.564478"
+        "ultima_interaccion": "2026-05-05T22:16:35.817284"
+    },
+    "user_5acc9pkxc": {
+        "session_id": "user_5acc9pkxc",
+        "nombre": "",
+        "carrera": "Psicología",
+        "producto_actual": "EGEL",
+        "etapa": "idle",
+        "estado": "activo",
+        "productos_interes": [],
+        "historial": [
+            {
+                "fecha": "2026-05-05T22:21:49.191735",
+                "user": "cuanto cuesta la guia de psicologia?",
+                "bot": "😅 Perdón, tuve un pequeño problema procesando tu mensaje."
+            }
+        ],
+        "ventas": [],
+        "fecha_creacion": "2026-05-05T22:21:49.160802",
+        "ultima_interaccion": "2026-05-05T22:21:49.206354"
     }
 }
