@@ -121,10 +121,15 @@
                 "fecha": "2026-05-05T20:49:20.614628",
                 "user": "quiero saber mas acerca de las herramientas de ia para escritores que tienes.",
                 "bot": "Perdón 😅 tuve un pequeño retraso procesando tu mensaje. ¿Me lo repites rapidísimo?"
+            },
+            {
+                "fecha": "2026-05-05T20:57:15.061055",
+                "user": "si, quiero saber mas acerca de lia",
+                "bot": ""
             }
         ],
         "ventas": [],
         "fecha_creacion": "2026-05-05T20:49:20.613064",
-        "ultima_interaccion": "2026-05-05T20:49:20.645305"
+        "ultima_interaccion": "2026-05-05T20:57:15.075547"
     }
 }

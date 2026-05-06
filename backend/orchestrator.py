@@ -11,16 +11,9 @@ MODEL = os.getenv("OLLAMA_MODEL", "google/gemma-4-e4b")
 LMSTUDIO_URL = f"{BASE_URL}/v1/chat/completions"
 
 FAST_PROMPT = """
-Eres LIA, una asesora inteligente y amigable.
-
-Responde:
-- corto
-- natural
-- útil
-- menos de 80 palabras
-- tono humano mexicano ligero
-
-NO uses respuestas largas.
+Eres LIA.
+Responde corto, útil y humano.
+Máximo 50 palabras.
 """
 
 def is_fast_message(message):
@@ -60,7 +53,15 @@ class LocalAgent:
 
     def run(self, message: str, session: dict):
         import time
+        import random
         start = time.time()
+
+        fallbacks = [
+            "¡Claro! 😊 Cuéntame qué te interesa más.",
+            "Sí 😊 puedo ayudarte con eso.",
+            "¡Va! ⚡ Te explico rapidísimo.",
+            "¡Hola! 👋 Soy LIA. ¿Te interesa el simulador EGEL o herramientas IA?"
+        ]
 
         if is_fast_message(message):
             messages = [
@@ -77,8 +78,9 @@ class LocalAgent:
         payload = {
             "model": MODEL,
             "messages": messages,
-            "temperature": 0.4,
-            "max_tokens": 120
+            "temperature": 0.2,
+            "max_tokens": 80,
+            "stop": ["</s>", "USER:", "ASSISTANT:"]
         }
 
         try:
@@ -91,18 +93,27 @@ class LocalAgent:
             # Gemma optimizada: 45s timeout
             with urllib.request.urlopen(req, timeout=45) as response:
                 result = json.loads(response.read().decode("utf-8"))
+                
+                # DEBUG: Ver respuesta completa de LM Studio
+                print(json.dumps(result, indent=2, ensure_ascii=False))
 
-                if "choices" not in result:
+                if "choices" not in result or not result["choices"]:
                     print("[ERROR LM] respuesta inválida:", result)
-                    return "Perdón 😅 tuve un pequeño retraso procesando tu mensaje. ¿Me lo repites rapidísimo?"
+                    return random.choice(fallbacks)
 
-                content = result["choices"][0]["message"]["content"]
-                print(f"⚡ Tiempo IA: {time.time() - start:.2f}s")
+                content = result["choices"][0]["message"]["content"].strip()
+                elapsed = time.time() - start
+                print(f"⚡ Tiempo total LM: {elapsed:.2f}s")
+                
+                if not content:
+                    print("[ERROR LM] respuesta vacía detectada")
+                    return random.choice(fallbacks)
+
                 return content
 
         except Exception as e:
             print(f"[ERROR AGENTE {self.name}]:", e)
-            return "Perdón 😅 tuve un pequeño retraso procesando tu mensaje. ¿Me lo repites rapidísimo?"
+            return random.choice(fallbacks)
 
 
 # =========================
