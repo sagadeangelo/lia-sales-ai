@@ -39,18 +39,18 @@ class LocalAgent:
                 headers={"Content-Type": "application/json"}
             )
 
-            with urllib.request.urlopen(req, timeout=25) as response:
+            with urllib.request.urlopen(req, timeout=20) as response:
                 result = json.loads(response.read().decode("utf-8"))
 
                 if "choices" not in result:
                     print("[ERROR LM] respuesta inválida:", result)
-                    return "Error generando respuesta."
+                    return "Perdón 😅 tuve un pequeño retraso procesando tu mensaje. ¿Me lo repites rapidísimo?"
 
                 return result["choices"][0]["message"]["content"]
 
         except Exception as e:
             print(f"[ERROR AGENTE {self.name}]:", e)
-            return "Error procesando mensaje."
+            return "Perdón 😅 tuve un pequeño retraso procesando tu mensaje. ¿Me lo repites rapidísimo?"
 
 
 # =========================
@@ -58,6 +58,10 @@ class LocalAgent:
 # =========================
 
 def parse_response(response: str):
+    # Si es el mensaje de fallback, no intentar parsear JSON
+    if "retraso procesando tu mensaje" in response:
+        return response, {}
+        
     try:
         if "---MENSAJE---" in response and "---JSON---" in response:
 
@@ -118,30 +122,30 @@ def detectar_intencion(message):
 def run_pipeline(session_id: str, session: dict, message: str):
 
     session.setdefault("history", [])
+    contexto = session.get("contexto", "general")
+    
+    print(f"\n[PIPELINE] Contexto Activo: {contexto}")
 
-    # 🔥 CONTEXTO INTELIGENTE
-    if session.get("contexto") == "egel":
-        if not session.get("producto"):
-            session["producto"] = "EGEL_DERECHO"
-
-    if session.get("contexto") == "lia_staylo":
+    # 🔥 PRIORIDAD ABSOLUTA DEL CONTEXTO
+    if contexto == "egel":
+        if not session.get("producto") or "LIA" in str(session.get("producto")):
+            session["producto"] = "EGEL_DERECHO" # Default
+    elif contexto == "lia_staylo":
         session["producto"] = "LIA_STAYLO"
 
-    # ===== DETECTAR CARRERA =====
-    carrera = detectar_carrera(message)
-    if carrera:
-        session["carrera"] = carrera
-
-    # ===== AUTO PRODUCTO =====
-    if session.get("carrera"):
-        session["producto"] = f"EGEL_{session['carrera'].upper()}"
+    # ===== DETECTAR CARRERA (Solo si es EGEL) =====
+    if contexto == "egel":
+        carrera = detectar_carrera(message)
+        if carrera:
+            session["carrera"] = carrera
+            session["producto"] = f"EGEL_{carrera.upper()}"
 
     # ===== SALTO CAPTURA =====
     if session.get("carrera") and session.get("agente_actual") == "agente_1":
         session["agente_actual"] = "agente_2"
 
     agente_actual = session.get("agente_actual", "agente_1")
-    print(f"\n>>> AGENTE: {agente_actual}")
+    print(f">>> AGENTE: {agente_actual}")
 
     agents_map = {
         "agente_1": agente_1,
@@ -159,6 +163,10 @@ def run_pipeline(session_id: str, session: dict, message: str):
     try:
         raw_response = agente.run(message, session)
         clean_msg, json_data = parse_response(raw_response)
+
+        # Si hubo error de fallback, no procesar más lógica de sesión
+        if "retraso procesando tu mensaje" in clean_msg:
+            return clean_msg
 
         # ===== INTENCIÓN =====
         intencion = detectar_intencion(message)
@@ -272,7 +280,7 @@ def run_pipeline(session_id: str, session: dict, message: str):
 
     except Exception as e:
         print("[ERROR CRÍTICO]:", e)
-        return "Error en el sistema."
+        return "Perdón 😅 tuve un pequeño retraso procesando tu mensaje. ¿Me lo repites rapidísimo?"
 
 
 # =========================
