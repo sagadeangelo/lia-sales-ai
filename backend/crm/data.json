@@ -111,7 +111,7 @@
     "user_chi8qhlms": {
         "session_id": "user_chi8qhlms",
         "nombre": "",
-        "carrera": null,
+        "carrera": "Psicología",
         "producto_actual": "EGEL",
         "etapa": "project_type",
         "estado": "activo",
@@ -156,10 +156,20 @@
                 "fecha": "2026-05-05T21:19:30.083662",
                 "user": "quiero comprar una guia de psicologia",
                 "bot": "🔥 Suena increíble. LIA está diseñada justamente para acelerar procesos creativos sin perder tu estilo. Muchos usuarios la usan para: • novelas • sagas • universos ficticios • storytelling inmersivo ¿Ya tienes una historia iniciada o empezarías desde cero?"
+            },
+            {
+                "fecha": "2026-05-05T21:23:15.179700",
+                "user": "hola, quiero comprar una guia de psicologia.",
+                "bot": "¡Claro! ⚖️ Nuestro simulador EGEL Derecho incluye: • preguntas tipo CENEVAL • temporizador real • análisis inteligente • práctica por áreas ¿Ya sabes cuándo presentarás el examen?"
+            },
+            {
+                "fecha": "2026-05-05T21:23:55.812556",
+                "user": "en 3 meses",
+                "bot": "🔥 Suena increíble. LIA está diseñada justamente para acelerar procesos creativos sin perder tu estilo. Muchos usuarios la usan para: • novelas • sagas • universos ficticios • storytelling inmersivo ¿Ya tienes una historia iniciada o empezarías desde cero?"
             }
         ],
         "ventas": [],
         "fecha_creacion": "2026-05-05T20:49:20.613064",
-        "ultima_interaccion": "2026-05-05T21:19:30.104022"
+        "ultima_interaccion": "2026-05-05T21:23:55.826995"
     }
 }

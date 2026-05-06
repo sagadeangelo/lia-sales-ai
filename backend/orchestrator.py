@@ -138,21 +138,27 @@ def run_pipeline(session_id: str, session: dict, message: str):
     
     session.setdefault("history", [])
     session.setdefault("sales_stage", "idle")
-    contexto = session.get("contexto", "general")
     current_stage = session.get("sales_stage", "idle")
-    
+
     # 1. ROUTER (Detección de intención y carrera)
+    # Sticky Context: Priorizar carrera y contexto ya detectados si existen
     career = detect_career(message)
     if career:
         session["career"] = career
         session["contexto"] = "egel"
         contexto = "egel"
-        print(f"[CAREER] Detectada: {career} -> Forzando contexto EGEL")
+        print(f"[CAREER] Nueva detección: {career} -> Forzando contexto EGEL")
+    else:
+        # Si no hay nueva carrera, recuperar la de la sesión
+        career = session.get("career")
+        contexto = session.get("contexto", "general")
+        if career:
+            print(f"[STICKY] Manteniendo Carrera: {career} | Contexto: {contexto}")
 
     intent = detect_intent(message)
     print(f"\n[ROUTER] Intent: {intent} | Context: {contexto}")
 
-    # 2. AGENTE ESTRATÉGICO (Análisis comercial)
+    # 2. AGENTE ESTRATÉGICO (Análisis comercial con Memoria)
     agente_actual_id = session.get("agente_actual", "agente_1")
     agents_map = {
         "agente_1": agente_1,
@@ -161,8 +167,13 @@ def run_pipeline(session_id: str, session: dict, message: str):
     }
     agente_estrat = agents_map.get(agente_actual_id, agente_1)
     
-    print(f"[STRATEGY] Analizando con {agente_estrat.name}...")
-    strategy_raw = agente_estrat.run(message, session)
+    # Inyectar estado en el prompt del agente
+    prompt_con_estado = agente_estrat.prompt.replace("[PRODUCTO_ACTIVO]", contexto)
+    prompt_con_estado = prompt_con_estado.replace("[CARRERA_ACTIVA]", str(career))
+    prompt_con_estado = prompt_con_estado.replace("[ETAPA_ACTUAL]", current_stage)
+
+    print(f"[STRATEGY] Analizando con {agente_estrat.name} (Contexto: {contexto})...")
+    strategy_raw = agente_estrat.run(message, session, system_override=prompt_con_estado)
     strategy_data = parse_strategic_json(strategy_raw)
     
     # Extraer data estratégica
@@ -170,11 +181,11 @@ def run_pipeline(session_id: str, session: dict, message: str):
     suggested_stage = strategy_data.get("stage", current_stage)
     response_type = strategy_data.get("response_type", "template")
     
-    if strategy_data.get("detected_context"):
-        # Solo sobreescribir contexto si no es una carrera ya detectada
-        if not career:
-            session["contexto"] = strategy_data.get("detected_context")
-            contexto = session["contexto"]
+    # Sticky Context: Solo cambiar contexto si el agente detecta uno nuevo MUY claro (lia vs egel)
+    # y no tenemos una carrera académica fija
+    if strategy_data.get("detected_context") and not career:
+        session["contexto"] = strategy_data.get("detected_context")
+        contexto = session["contexto"]
 
     # 3. SALES FLOW ENGINE (Guiar conversación)
     # El engine decide la respuesta basada en el flow predefinido

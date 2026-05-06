@@ -100,8 +100,8 @@ def detect_intent(message):
     if any(x in msg for x in ["precio", "costo", "cuanto cuesta", "pago"]):
         return "pricing"
         
-    # Urgencia
-    if any(x in msg for x in ["pronto", "urgente", "ya", "mañana", "esta semana"]):
+    # Urgencia / Fechas de examen
+    if any(x in msg for x in ["pronto", "urgente", "ya", "mañana", "esta semana", "meses", "año", "fecha", "presento"]):
         return "urgency"
         
     # Objeciones
