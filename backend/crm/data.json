@@ -64,11 +64,31 @@
                 "fecha": "2026-05-05T19:42:06.904450",
                 "user": "quiero saber mas de las guias de derecho.",
                 "bot": "Perdón 😅 tuve un pequeño retraso procesando tu mensaje. ¿Me lo repites rapidísimo?"
+            },
+            {
+                "fecha": "2026-05-06T14:53:14.968932",
+                "user": "derecho",
+                "bot": "🔥 ¡Claro! 🎓 Nuestro simulador EGEL Derecho incluye: • preguntas tipo CENEVAL • temporizador real • análisis inteligente • práctica por áreas ¿Ya sabes cuándo presentarás el examen?"
+            },
+            {
+                "fecha": "2026-05-06T14:53:22.908515",
+                "user": "costo?",
+                "bot": "🔥 💳 El acceso completo para Derecho actualmente está disponible por: $499 MXN Incluye: • entrenamiento inteligente • simuladores tipo CENEVAL • práctica por áreas • acceso inmediato Puedes comenzar hoy mismo 👌"
+            },
+            {
+                "fecha": "2026-05-06T14:54:56.511852",
+                "user": "y el costo de enfermeria?",
+                "bot": "🚀 💳 El acceso completo para Enfermería actualmente está disponible por: $499 MXN Incluye: • entrenamiento inteligente • simuladores tipo CENEVAL • práctica por áreas • acceso inmediato Puedes comenzar hoy mismo 👌"
+            },
+            {
+                "fecha": "2026-05-06T14:55:12.574773",
+                "user": "tienes medicina?",
+                "bot": "🙌 ¡Claro! 🎓 Nuestro simulador EGEL Medicina incluye: • preguntas tipo CENEVAL • temporizador real • análisis inteligente • práctica por áreas ¿Ya sabes cuándo presentarás el examen?"
             }
         ],
         "ventas": [],
         "fecha_creacion": "2026-05-05T19:39:03.499404",
-        "ultima_interaccion": "2026-05-05T19:42:06.947591"
+        "ultima_interaccion": "2026-05-06T14:55:12.596556"
     },
     "user_uu3408yf9": {
         "session_id": "user_uu3408yf9",
@@ -205,9 +225,9 @@
     "user_5acc9pkxc": {
         "session_id": "user_5acc9pkxc",
         "nombre": "",
-        "carrera": "Psicología",
+        "carrera": "Derecho",
         "producto_actual": "EGEL",
-        "etapa": "idle",
+        "etapa": "interest",
         "estado": "activo",
         "productos_interes": [],
         "historial": [
@@ -215,10 +235,316 @@
                 "fecha": "2026-05-05T22:21:49.191735",
                 "user": "cuanto cuesta la guia de psicologia?",
                 "bot": "😅 Perdón, tuve un pequeño problema procesando tu mensaje."
+            },
+            {
+                "fecha": "2026-05-05T22:34:35.629248",
+                "user": "cuanto cuesta la guia de derecho?",
+                "bot": "💳 El acceso a la guía de Derecho está disponible actualmente en: $999 MXN Y el acceso es inmediato 👌 ¿Te gustaría que te explique cómo comenzar hoy mismo?"
+            },
+            {
+                "fecha": "2026-05-05T22:47:38.049545",
+                "user": "que diferencia hay entre la guia y el simulador?",
+                "bot": "¡Claro! 🎓 Nuestro simulador EGEL Derecho incluye: • preguntas tipo CENEVAL • temporizador real • análisis inteligente • práctica por áreas ¿Ya sabes cuándo presentarás el examen?"
+            },
+            {
+                "fecha": "2026-05-05T23:20:03.863200",
+                "user": "hola, cuanto cuesta la guia de enfermeria?",
+                "bot": "Sí 👌 puedo ayudarte con eso."
+            },
+            {
+                "fecha": "2026-05-05T23:29:47.109659",
+                "user": "hola que tal, disculpa que diferencia hay entre comprar solo el simulador y la guia?",
+                "bot": "¡Claro! 😊 Cuéntame un poquito más."
+            },
+            {
+                "fecha": "2026-05-05T23:30:19.068746",
+                "user": "de mi vida o de que?",
+                "bot": "¡Claro! 😊 Cuéntame un poquito más."
+            },
+            {
+                "fecha": "2026-05-05T23:41:10.945401",
+                "user": "quiero comprar la guia de enfermeria.",
+                "bot": "🔥 Perfecto. Muchos alumnos comienzan practicando el mismo día para detectar rápidamente sus áreas más débiles. ¿Te gustaría que te pase el acceso? 👀"
+            },
+            {
+                "fecha": "2026-05-05T23:43:04.467559",
+                "user": "a que te refieres con el acceso?",
+                "bot": "✨ ¡Claro! 🎓 Nuestro simulador EGEL Enfermería incluye: • preguntas tipo CENEVAL • temporizador real • análisis inteligente • práctica por áreas ¿Ya sabes cuándo presentarás el examen?"
+            },
+            {
+                "fecha": "2026-05-05T23:47:06.754061",
+                "user": "quiero comprar ya la guia de derecho.",
+                "bot": "🔥 Perfecto. Muchos alumnos comienzan practicando el mismo día para detectar rápidamente sus áreas más débiles. ¿Te gustaría que te pase el acceso? 👀"
+            },
+            {
+                "fecha": "2026-05-05T23:47:25.029206",
+                "user": "si, quiero comprar la guia.",
+                "bot": "🔥 Perfecto. Muchos alumnos comienzan practicando el mismo día para detectar rápidamente sus áreas más débiles. ¿Te gustaría que te pase el acceso? 👀"
+            },
+            {
+                "fecha": "2026-05-05T23:51:10.896333",
+                "user": "hola, quiero comprar ya la guia de sistemas.",
+                "bot": "🔥 Perfecto. La guía de Derecho incluye entrenamiento inteligente, simuladores tipo CENEVAL, práctica por áreas y acceso inmediato. Muchos alumnos comienzan practicando desde el mismo día para detectar rápidamente sus áreas más débiles 👌 El acceso completo actualmente está disponible por $499 MXN. ¿Te gustaría que te pase el enlace para comenzar hoy mismo?"
+            },
+            {
+                "fecha": "2026-05-05T23:55:41.069212",
+                "user": "hola, cuanto cuesta la guia de contaduria?",
+                "bot": "👌 💳 El acceso completo para Contaduría actualmente está disponible por: $499 MXN Incluye: • entrenamiento inteligente • simuladores tipo CENEVAL • práctica por áreas • acceso inmediato Puedes comenzar hoy mismo 👌"
+            },
+            {
+                "fecha": "2026-05-05T23:56:31.213628",
+                "user": "por cuanto tiempo puedo usar el entrenamiento?",
+                "bot": "🚀 ¡Claro! 🎓 Nuestro simulador EGEL Sistemas / Ti incluye: • preguntas tipo CENEVAL • temporizador real • análisis inteligente • práctica por áreas ¿Ya sabes cuándo presentarás el examen?"
+            },
+            {
+                "fecha": "2026-05-05T23:59:25.142913",
+                "user": "hola, quiero comprar la guia de industrial.",
+                "bot": "🔥 Perfecto. La guía de Ing. Industrial incluye entrenamiento inteligente, simuladores tipo CENEVAL, práctica por áreas y acceso inmediato. Muchos alumnos comienzan practicando desde el mismo día para detectar rápidamente sus áreas más débiles 👌 El acceso completo actualmente está disponible por $499 MXN. ¿Te gustaría que te pase el enlace para comenzar hoy mismo?"
+            },
+            {
+                "fecha": "2026-05-06T00:00:12.627444",
+                "user": "cuanto tiempor dura el acceso de entrenamiento?",
+                "bot": "🙌 ¡Claro! 🎓 Nuestro simulador EGEL Sistemas / Ti incluye: • preguntas tipo CENEVAL • temporizador real • análisis inteligente • práctica por áreas ¿Ya sabes cuándo presentarás el examen?"
+            },
+            {
+                "fecha": "2026-05-06T00:03:35.077274",
+                "user": "quiero comprar hoy mismo la guia de enfermeria.",
+                "bot": "🔥 Perfecto. La guía de Enfermería incluye entrenamiento inteligente, simuladores tipo CENEVAL, práctica por áreas y acceso inmediato. Muchos alumnos comienzan practicando desde el mismo día para detectar rápidamente sus áreas más débiles 👌 El acceso completo actualmente está disponible por $499 MXN. ¿Te gustaría que te pase el enlace para comenzar hoy mismo?"
+            },
+            {
+                "fecha": "2026-05-06T00:04:05.186010",
+                "user": "cuanto tiempo dura el entrenamiento?",
+                "bot": "👀 ¡Claro! 🎓 Nuestro simulador EGEL Sistemas / Ti incluye: • preguntas tipo CENEVAL • temporizador real • análisis inteligente • práctica por áreas ¿Ya sabes cuándo presentarás el examen?"
             }
         ],
         "ventas": [],
         "fecha_creacion": "2026-05-05T22:21:49.160802",
-        "ultima_interaccion": "2026-05-05T22:21:49.206354"
+        "ultima_interaccion": "2026-05-06T00:04:05.203997"
+    },
+    "user_1778086157617": {
+        "session_id": "user_1778086157617",
+        "nombre": "",
+        "carrera": null,
+        "producto_actual": "EGEL",
+        "etapa": "captura",
+        "estado": "activo",
+        "productos_interes": [],
+        "historial": [
+            {
+                "fecha": "2026-05-06T11:49:28.519764",
+                "user": "hola amigo",
+                "bot": "✨ ¡Claro! 🎓 Nuestro simulador EGEL Derecho incluye: • preguntas tipo CENEVAL • temporizador real • análisis inteligente • práctica por áreas ¿Ya sabes cuándo presentarás el examen?"
+            },
+            {
+                "fecha": "2026-05-06T11:54:55.700843",
+                "user": "cuanto cuesta la guia de psicologia?",
+                "bot": "😄 💳 El acceso completo para Psicología actualmente está disponible por: $499 MXN Incluye: • entrenamiento inteligente • simuladores tipo CENEVAL • práctica por áreas • acceso inmediato Puedes comenzar hoy mismo 👌"
+            },
+            {
+                "fecha": "2026-05-06T12:04:44.747349",
+                "user": "y que es el simulador ?",
+                "bot": "✨ ¡Claro! 🎓 Nuestro simulador EGEL Psicología incluye: • preguntas tipo CENEVAL • temporizador real • análisis inteligente • práctica por áreas ¿Ya sabes cuándo presentarás el examen?"
+            },
+            {
+                "fecha": "2026-05-06T12:04:56.078250",
+                "user": "en tres meses",
+                "bot": "👀 Perfecto 🎓 Todavía tienes muy buen tiempo para prepararte para Psicología. La mayoría empieza practicando para detectar primero en qué áreas anda más débil. ¿Ya has hecho algún simulador EGEL antes?"
+            },
+            {
+                "fecha": "2026-05-06T12:05:11.584641",
+                "user": "no, seria la primera vez",
+                "bot": "🚀 ¡Claro! 🎓 Nuestro simulador EGEL Psicología incluye: • preguntas tipo CENEVAL • temporizador real • análisis inteligente • práctica por áreas ¿Ya sabes cuándo presentarás el examen?"
+            },
+            {
+                "fecha": "2026-05-06T12:05:25.086255",
+                "user": "en tres meses",
+                "bot": "✨ Perfecto 🎓 Todavía tienes muy buen tiempo para prepararte para Psicología. La mayoría empieza practicando para detectar primero en qué áreas anda más débil. ¿Ya has hecho algún simulador EGEL antes?"
+            },
+            {
+                "fecha": "2026-05-06T12:05:39.286081",
+                "user": "me das el link de compra",
+                "bot": "👌 Excelente 🙌 Eso ayuda muchísimo para medir tu nivel actual. Nuestro sistema te muestra: • áreas fuertes • áreas débiles • progreso real • simulaciones tipo examen ¿Hay alguna materia o área que te preocupe más?"
+            }
+        ],
+        "ventas": [],
+        "fecha_creacion": "2026-05-06T11:49:28.497120",
+        "ultima_interaccion": "2026-05-06T12:05:39.295954"
+    },
+    "user_7moz1jbd1": {
+        "session_id": "user_7moz1jbd1",
+        "nombre": "",
+        "carrera": null,
+        "producto_actual": "EGEL",
+        "etapa": "cierre",
+        "estado": "activo",
+        "productos_interes": [],
+        "historial": [
+            {
+                "fecha": "2026-05-06T15:39:45.626056",
+                "user": "hola",
+                "bot": "✨ Excelente 🙌 Eso ayuda muchísimo para medir tu nivel actual. Nuestro sistema te muestra: • áreas fuertes • áreas débiles • progreso real • simulaciones tipo examen ¿Hay alguna materia o área que te preocupe más?"
+            },
+            {
+                "fecha": "2026-05-06T15:39:54.416037",
+                "user": "hola",
+                "bot": "😄 Te entiendo 🎓 Mucha gente llega sintiendo: • presión por el tiempo • nervios por el examen • dudas sobre qué estudiar primero Justo por eso el simulador ayuda muchísimo 👀 ¿Te gustaría ver cómo funciona el entrenamiento?"
+            },
+            {
+                "fecha": "2026-05-06T15:40:01.788246",
+                "user": "hola",
+                "bot": "🔥 Mucha gente usa el simulador para: • practicar bajo tiempo real • detectar errores • mejorar seguridad • acostumbrarse al formato CENEVAL Y todo queda guardado para que puedas medir tu avance."
+            },
+            {
+                "fecha": "2026-05-06T17:20:48.417898",
+                "user": "hola, quiero mas informes.",
+                "bot": "😄 ¡Claro! 🎓 Nuestro simulador EGEL Derecho incluye: • preguntas tipo CENEVAL • temporizador real • análisis inteligente • práctica por áreas ¿Ya sabes cuándo presentarás el examen?"
+            },
+            {
+                "fecha": "2026-05-06T17:21:04.527030",
+                "user": "en 5 meses",
+                "bot": "✨ Perfecto 🎓 Todavía tienes muy buen tiempo para prepararte para Derecho. La mayoría empieza practicando para detectar primero en qué áreas anda más débil. ¿Ya has hecho algún simulador EGEL antes?"
+            },
+            {
+                "fecha": "2026-05-06T17:21:19.806094",
+                "user": "pero yo no estoy en derecho.",
+                "bot": "🙌 ¡Claro! 🎓 Nuestro simulador EGEL Derecho incluye: • preguntas tipo CENEVAL • temporizador real • análisis inteligente • práctica por áreas ¿Ya sabes cuándo presentarás el examen?"
+            },
+            {
+                "fecha": "2026-05-06T17:21:31.728517",
+                "user": "yo estoy en medicina",
+                "bot": "✨ ¡Claro! 🎓 Nuestro simulador EGEL Medicina incluye: • preguntas tipo CENEVAL • temporizador real • análisis inteligente • práctica por áreas ¿Ya sabes cuándo presentarás el examen?"
+            },
+            {
+                "fecha": "2026-05-06T17:21:44.751021",
+                "user": "quiero comprar la guia de medicina",
+                "bot": "🔥 Perfecto. La guía de Medicina incluye entrenamiento inteligente, simuladores tipo CENEVAL, práctica por áreas y acceso inmediato. Muchos alumnos comienzan practicando desde el mismo día para detectar rápidamente sus áreas más débiles 👌 El acceso completo actualmente está disponible por $499 MXN. ¿Te gustaría que te pase el enlace para comenzar hoy mismo?"
+            },
+            {
+                "fecha": "2026-05-06T17:22:06.778226",
+                "user": "te refieres el link de compra?",
+                "bot": "🔥 Perfecto 🎓 Todavía tienes muy buen tiempo para prepararte para Medicina. La mayoría empieza practicando para detectar primero en qué áreas anda más débil. ¿Ya has hecho algún simulador EGEL antes?"
+            },
+            {
+                "fecha": "2026-05-06T17:26:37.342687",
+                "user": "hola, quiero saber mas acerca del simulador egel",
+                "bot": "👌 ¡Claro! 🎓 Nuestro simulador EGEL Derecho incluye: • preguntas tipo CENEVAL • temporizador real • análisis inteligente • práctica por áreas ¿Ya sabes cuándo presentarás el examen?\n\n🔥 ¿Te gustaría que te pase el enlace para comenzar hoy mismo?"
+            },
+            {
+                "fecha": "2026-05-06T17:26:57.693317",
+                "user": "pero no estoy en derecho quiero psicologia",
+                "bot": "👀 ¡Claro! 🎓 Nuestro simulador EGEL Psicología incluye: • preguntas tipo CENEVAL • temporizador real • análisis inteligente • práctica por áreas ¿Ya sabes cuándo presentarás el examen?\n\n🔥 ¿Te gustaría que te pase el enlace para comenzar hoy mismo?"
+            },
+            {
+                "fecha": "2026-05-06T17:27:09.190279",
+                "user": "si, pasamelo",
+                "bot": "✨ Perfecto 🎓 Todavía tienes muy buen tiempo para prepararte para Psicología. La mayoría empieza practicando para detectar primero en qué áreas anda más débil. ¿Ya has hecho algún simulador EGEL antes?"
+            },
+            {
+                "fecha": "2026-05-06T17:27:21.197625",
+                "user": "nunca",
+                "bot": "👀 Excelente 🙌 Eso ayuda muchísimo para medir tu nivel actual. Nuestro sistema te muestra: • áreas fuertes • áreas débiles • progreso real • simulaciones tipo examen ¿Hay alguna materia o área que te preocupe más?"
+            },
+            {
+                "fecha": "2026-05-06T17:27:33.702163",
+                "user": "todas",
+                "bot": "🚀 Te entiendo 🎓 Mucha gente llega sintiendo: • presión por el tiempo • nervios por el examen • dudas sobre qué estudiar primero Justo por eso el simulador ayuda muchísimo 👀 ¿Te gustaría ver cómo funciona el entrenamiento?"
+            },
+            {
+                "fecha": "2026-05-06T17:27:45.569455",
+                "user": "si",
+                "bot": "🔥 Mucha gente usa el simulador para: • practicar bajo tiempo real • detectar errores • mejorar seguridad • acostumbrarse al formato CENEVAL Y todo queda guardado para que puedas medir tu avance."
+            },
+            {
+                "fecha": "2026-05-06T17:40:24.593318",
+                "user": "hola, quiero mas informes",
+                "bot": "🙌 ¡Claro! 🎓 Nuestro simulador EGEL Derecho incluye: · preguntas tipo CENEVAL · temporizador real · análisis inteligente · práctica por áreas ¿Ya sabes cuándo presentarás el examen? 🔥 ¿Te gustaría que te pase el enlace para comenzar hoy mismo?"
+            },
+            {
+                "fecha": "2026-05-06T17:40:37.446961",
+                "user": "cuanto cuesta?",
+                "bot": "😄 💳 El acceso completo para Derecho actualmente está disponible por: $499 MXN Incluye: · entrenamiento inteligente · simuladores tipo CENEVAL · práctica por áreas · acceso inmediato Puedes comenzar hoy mismo 👌"
+            },
+            {
+                "fecha": "2026-05-06T17:41:00.718503",
+                "user": "si, quiero quiero pagar el acceso.",
+                "bot": "🚀 🎓 Todavía tienes muy buen tiempo para prepararte para Derecho. practicando para detectar primero en qué áreas anda más débil. ¿Ya has hecho algún simulador EGEL antes? 🔥 ¿Te gustaría que te pase el enlace para comenzar hoy mismo?"
+            },
+            {
+                "fecha": "2026-05-06T17:41:31.255749",
+                "user": "si, ya te habia comentado que quiero pagar el acceso.",
+                "bot": "😄 ¡Claro! 🎓 Nuestro simulador EGEL Derecho incluye: · preguntas tipo CENEVAL · temporizador real · análisis inteligente · práctica por áreas ¿Ya sabes cuándo presentarás el examen? 🔥 ¿Te gustaría que te pase el enlace para comenzar hoy mismo?"
+            },
+            {
+                "fecha": "2026-05-06T18:58:40.983891",
+                "user": "hola",
+                "bot": "🚀 🎓 Todavía tienes muy buen tiempo para prepararte para Derecho. practicando para detectar primero en qué áreas anda más débil. ¿Ya has hecho algún simulador EGEL antes?"
+            }
+        ],
+        "ventas": [],
+        "fecha_creacion": "2026-05-06T13:02:52.576379",
+        "ultima_interaccion": "2026-05-06T18:58:41.009069"
+    },
+    "user_0v7qj9w2u": {
+        "session_id": "user_0v7qj9w2u",
+        "nombre": "",
+        "carrera": null,
+        "producto_actual": "EGEL",
+        "etapa": "evaluacion",
+        "estado": "activo",
+        "productos_interes": [],
+        "historial": [
+            {
+                "fecha": "2026-05-06T22:24:20.298497",
+                "user": "me vendes una guia por favor.",
+                "bot": "🚀 ¡Claro! 🎓 Nuestro simulador EGEL Derecho incluye: · preguntas tipo CENEVAL · temporizador real · análisis inteligente · práctica por áreas ¿Ya sabes cuándo presentarás el examen?"
+            },
+            {
+                "fecha": "2026-05-06T22:24:32.443109",
+                "user": "hoy",
+                "bot": "👌 🎓 Todavía tienes muy buen tiempo para prepararte para Derecho. practicando para detectar primero en qué áreas anda más débil. ¿Ya has hecho algún simulador EGEL antes?"
+            },
+            {
+                "fecha": "2026-05-06T22:24:42.803936",
+                "user": "no",
+                "bot": "👌 🙌 para medir tu nivel actual. te muestra: · áreas fuertes · áreas débiles · progreso real · simulaciones tipo examen ¿Hay alguna materia o área que te preocupe más?"
+            },
+            {
+                "fecha": "2026-05-07T00:43:18.947697",
+                "user": "cuanto cuesta la guia de medicina?",
+                "bot": "✨ 💳 El acceso completo para Medicina actualmente está disponible por: $499 MXN Incluye: · entrenamiento inteligente · simuladores tipo CENEVAL · práctica por áreas · acceso inmediato Puedes comenzar hoy mismo 👌"
+            },
+            {
+                "fecha": "2026-05-07T00:43:33.362658",
+                "user": "si, quiero comenzar hoy.",
+                "bot": "🔥. La guía de Medicina incluye entrenamiento inteligente, simuladores tipo CENEVAL, práctica por áreas y acceso inmediato. comienzan practicando desde el mismo día para detectar rápidamente sus áreas más débiles 👌 El acceso completo actualmente está disponible por $499 MXN. ¿Te gustaría que te pase el enlace para com..."
+            },
+            {
+                "fecha": "2026-05-11T10:09:37.903230",
+                "user": "hola, quiero informes de las guias.",
+                "bot": "🔥 ¡Claro! 🎓 Nuestro simulador EGEL Derecho incluye: · preguntas tipo CENEVAL · temporizador real · análisis inteligente · práctica por áreas ¿Ya sabes cuándo presentarás el examen? 🔥 ¿Te gustaría que te pase el enlace para comenzar hoy mismo?"
+            }
+        ],
+        "ventas": [],
+        "fecha_creacion": "2026-05-06T22:24:20.261108",
+        "ultima_interaccion": "2026-05-11T10:09:37.917947"
+    },
+    "user_iaxzs1lex": {
+        "session_id": "user_iaxzs1lex",
+        "nombre": "",
+        "carrera": null,
+        "producto_actual": "EGEL",
+        "etapa": "captura",
+        "estado": "activo",
+        "productos_interes": [],
+        "historial": [
+            {
+                "fecha": "2026-05-07T19:11:01.480326",
+                "user": "hola",
+                "bot": "🚀 👋 ✨ ¡Claro! 🎓 Nuestro simulador EGEL Derecho incluye: · preguntas tipo CENEVAL · temporizador real · análisis inteligente · práctica por áreas ¿Ya sabes cuándo presentarás el examen?"
+            }
+        ],
+        "ventas": [],
+        "fecha_creacion": "2026-05-07T19:11:01.290417",
+        "ultima_interaccion": "2026-05-07T19:11:01.527951"
     }
 }

@@ -1,14 +1,34 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from datetime import datetime
-from orchestrator import run_pipeline, MODEL, BASE_URL
+
+from orchestrator import run_pipeline
+
 from crm.manager import add_historial, update_lead
 from crm.storage import load_data
+
+from memory.session_memory import (
+    get_session,
+    update_session,
+    add_message
+)
+
+from brain.intent_score import calculate_intent
+from brain.hot_detector import is_hot_lead
+
 import traceback
 import uuid
-import os
+
+from brain.context_manager import context_manager
+from brain.sales_stage import detect_sales_stage
+from brain.response_router import enrich_response
+from brain.response_compressor import compress_response
+from sales.ai_humanizer import humanize as humanize_response
+
+from quiz.routes.quiz_routes import router as quiz_router
+
 
 # =========================================================
 # APP
@@ -16,15 +36,20 @@ import os
 
 app = FastAPI(
     title="LIA Sales AI",
-    version="2.0.0",
+    version="3.0.0",
     description="Sistema Inteligente Conversacional"
 )
 
 print("\n" + "="*50)
-print(f"LIA SALES AI INICIANDO")
-print(f"MODELO ACTIVO: {MODEL}")
-print(f"API URL: {BASE_URL}")
+print("🚀 LIA SALES AI INICIANDO")
+print("✅ Sistema comercial activo")
 print("="*50 + "\n")
+
+# =========================================================
+# QUIZ ROUTES
+# =========================================================
+
+app.include_router(quiz_router)
 
 # =========================================================
 # CORS
@@ -34,11 +59,21 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://lia.lasagadeangelo.com.mx",
+        "https://agents.lasagadeangelo.com.mx",
         "https://lia-landing.pages.dev",
+
         "http://localhost:3000",
+        "http://127.0.0.1:3000",
+
+        "http://localhost:5500",
+        "http://127.0.0.1:5500",
+
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+
         "*"
     ],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -47,7 +82,7 @@ app.add_middleware(
 # CONFIG
 # =========================================================
 
-MAX_HISTORY = 6
+MAX_HISTORY = 8
 sessions = {}
 
 # =========================================================
@@ -59,12 +94,12 @@ class ChatRequest(BaseModel):
     message: str
     contexto: str | None = None
 
-
 # =========================================================
 # UTILS
 # =========================================================
 
-def clean_response(text: str) -> str:
+def clean_response(text: str):
+
     if not text:
         return ""
 
@@ -73,23 +108,25 @@ def clean_response(text: str) -> str:
 
     return " ".join(text.split())
 
-
 def get_or_create_session(session_id=None):
 
     if not session_id:
         session_id = str(uuid.uuid4())
 
     if session_id not in sessions:
+
         sessions[session_id] = {
             "agente_actual": "agente_1",
             "history": [],
             "created_at": datetime.now().isoformat(),
             "last_activity": datetime.now().isoformat(),
-            "contexto": None
+            "contexto": None,
+            "lead_score": 0,
+            "lead_nivel": "COLD",
+            "etapa": "captura"
         }
 
     return session_id, sessions[session_id]
-
 
 # =========================================================
 # ROOT
@@ -97,12 +134,12 @@ def get_or_create_session(session_id=None):
 
 @app.get("/")
 def root():
+
     return {
         "status": "online",
         "system": "LIA SALES AI",
-        "version": "2.0.0"
+        "version": "3.0.0"
     }
-
 
 # =========================================================
 # HEALTH
@@ -110,12 +147,12 @@ def root():
 
 @app.get("/health")
 def health():
+
     return {
         "status": "healthy",
         "sessions": len(sessions),
         "timestamp": datetime.now().isoformat()
     }
-
 
 # =========================================================
 # CHAT
@@ -126,9 +163,21 @@ async def chat(req: ChatRequest):
 
     try:
 
+        # =====================================================
+        # SESSION
+        # =====================================================
+
         session_id, session = get_or_create_session(req.session_id)
 
         session["last_activity"] = datetime.now().isoformat()
+
+        user_message = req.message.strip()
+
+        # ==========================================
+        # CONTEXTO MEMORIA
+        # ==========================================
+        context = context_manager.get(session_id)
+        context_manager.increment_messages(session_id)
 
         # =====================================================
         # CONTEXTO
@@ -138,12 +187,61 @@ async def chat(req: ChatRequest):
             session["contexto"] = req.contexto
 
         # =====================================================
+        # MEMORY SYSTEM
+        # =====================================================
+
+        memory = get_session(session_id)
+
+        add_message(
+            session_id,
+            "user",
+            user_message
+        )
+
+        # =====================================================
+        # INTENT SCORE
+        # =====================================================
+
+        new_score = calculate_intent(user_message)
+
+        total_score = memory["intent_score"] + new_score
+
+        hot = is_hot_lead(total_score)
+
+        # =====================================================
+        # UPDATE MEMORY
+        # =====================================================
+
+        update_session(session_id, {
+            "intent_score": total_score,
+            "hot_lead": hot
+        })
+
+        # =====================================================
+        # UPDATE SESSION
+        # =====================================================
+
+        session["lead_score"] = total_score
+
+        if hot:
+            session["lead_nivel"] = "HOT"
+            session["etapa"] = "cierre"
+
+        elif total_score >= 30:
+            session["lead_nivel"] = "WARM"
+            session["etapa"] = "evaluacion"
+
+        else:
+            session["lead_nivel"] = "COLD"
+            session["etapa"] = "captura"
+
+        # =====================================================
         # HISTORY USER
         # =====================================================
 
         session["history"].append({
             "role": "user",
-            "content": req.message,
+            "content": user_message,
             "timestamp": datetime.now().isoformat()
         })
 
@@ -154,16 +252,70 @@ async def chat(req: ChatRequest):
         raw_response = run_pipeline(
             session_id,
             session,
-            req.message
+            user_message
         )
 
-        # Manejar retorno estructurado (dict) o simple (str)
+        # ==========================================
+        # ACTUALIZAR CONTEXTO
+        # ==========================================
+        intent = session.get("intent", "general")
+        career = session.get("career", "Derecho")
+
+        # Detectar etapa de venta
+        stage = detect_sales_stage(user_message, context)
+
+        context_manager.update(session_id, {
+            "intent": intent,
+            "career": career,
+            "last_question": user_message,
+            "conversation_stage": stage
+        })
+
+        print(f"[STAGE] {stage}")
+
+        # =====================================================
+        # RESPONSE CLEAN
+        # =====================================================
+
         if isinstance(raw_response, dict):
             raw_text = raw_response.get("response", "")
         else:
             raw_text = raw_response
 
         response = clean_response(raw_text)
+
+        # ==========================================
+        # ENRIQUECER RESPUESTA (ROUTER)
+        # ==========================================
+        response = enrich_response(
+            response=response,
+            stage=stage,
+            context=context
+        )
+
+        # ==========================================
+        # HUMANIZAR (FINAL)
+        # ==========================================
+        response = humanize_response(response)
+
+        # ==========================================
+        # COMPRIMIR (FINAL)
+        # ==========================================
+        response = compress_response(response)
+
+        print("[COMPRESSED]")
+        print(f"[ROUTED_STAGE] {stage}")
+        print(f"[FINAL_RESPONSE] {response}")
+
+        # =====================================================
+        # MEMORY AI
+        # =====================================================
+
+        add_message(
+            session_id,
+            "assistant",
+            response
+        )
 
         # =====================================================
         # HISTORY AI
@@ -194,7 +346,7 @@ async def chat(req: ChatRequest):
 
         add_historial(
             session_id,
-            req.message,
+            user_message,
             response
         )
 
@@ -208,14 +360,27 @@ async def chat(req: ChatRequest):
             "ultima_actividad": datetime.now().isoformat()
         })
 
+        # ==========================================
+        # GUARDAR ULTIMA RESPUESTA
+        # ==========================================
+        context_manager.update(session_id, {
+            "last_response": response
+        })
+
         # =====================================================
         # LOGS
         # =====================================================
 
         print(f"[CHAT] {session_id}")
+        print(f"[MSG] {user_message}")
+        print(f"[INTENT] {intent}")
+        print(f"[MEMORY] {context_manager.debug(session_id)}")
         print(f"[CTX] {session.get('contexto')}")
         print(f"[AGENT] {session.get('agente_actual')}")
+        print(f"[SCORE] {total_score}")
+        print(f"[HOT LEAD] {hot}")
         print(f"[LEAD] {session.get('lead_nivel')}")
+        print(f"[STAGE] {session.get('etapa')}")
         print("------------------------------------------------")
 
         # =====================================================
@@ -230,6 +395,7 @@ async def chat(req: ChatRequest):
             "agente": session.get("agente_actual"),
             "lead_score": session.get("lead_score"),
             "lead_nivel": session.get("lead_nivel"),
+            "hot_lead": hot,
             "timestamp": datetime.now().isoformat()
         }
 
@@ -239,14 +405,14 @@ async def chat(req: ChatRequest):
         traceback.print_exc()
         print("------------------------------------------------")
 
-        raise HTTPException(
-            status_code=500,
-            detail=str(e)
-        )
-
+        return {
+            "success": False,
+            "response": "Híjole, tuve un pequeño problema procesando tu mensaje. 😅 ¿Me lo podrías repetir?",
+            "error": str(e)
+        }
 
 # =========================================================
-# DASHBOARD API
+# DASHBOARD
 # =========================================================
 
 @app.get("/dashboard")
@@ -286,7 +452,6 @@ def dashboard():
         "sessions_online": len(sessions)
     }
 
-
 # =========================================================
 # LEADS
 # =========================================================
@@ -310,7 +475,6 @@ def leads():
         for sid, u in data.items()
     ]
 
-
 # =========================================================
 # VENTAS
 # =========================================================
@@ -319,6 +483,7 @@ def leads():
 def ventas():
 
     data = load_data()
+
     result = []
 
     for sid, u in data.items():
@@ -335,7 +500,6 @@ def ventas():
 
     return result
 
-
 # =========================================================
 # EMBUDO
 # =========================================================
@@ -347,12 +511,8 @@ def embudo():
 
     funnel = {
         "captura": 0,
-        "calificacion": 0,
-        "nurturing": 0,
-        "objeciones": 0,
-        "cierre": 0,
-        "venta": 0,
-        "postventa": 0
+        "evaluacion": 0,
+        "cierre": 0
     }
 
     for u in data.values():
@@ -363,7 +523,6 @@ def embudo():
             funnel[etapa] += 1
 
     return funnel
-
 
 # =========================================================
 # DASHBOARD UI

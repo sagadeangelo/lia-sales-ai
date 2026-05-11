@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "question": "¿Qué es la Constitución?",
+    "options": [
+      "Una ley suprema",
+      "Un reglamento",
+      "Una costumbre",
+      "Un tratado"
+    ],
+    "correct_answer": "Una ley suprema",
+    "category": "derecho",
+    "difficulty": "easy",
+    "explanation": "La Constitución es la norma suprema del Estado."
+  },
+  {
+    "id": 2,
+    "question": "¿Qué poder crea las leyes?",
+    "options": [
+      "Ejecutivo",
+      "Judicial",
+      "Legislativo",
+      "Municipal"
+    ],
+    "correct_answer": "Legislativo",
+    "category": "derecho",
+    "difficulty": "easy",
+    "explanation": "El Poder Legislativo crea las leyes."
+  }
+]

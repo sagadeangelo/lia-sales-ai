@@ -284,16 +284,17 @@ def build_dynamic_response(response, career):
         return "😅 Perdón, tuve un pequeño problema generando la respuesta."
 
     if not career:
-        career = "Derecho"
+        # We don't default anymore. If missing, we return the base response.
+        return response
 
     career_key = career.lower()
 
     career_info = CAREER_DATA.get(
         career_key,
-        CAREER_DATA.get("derecho", {})
+        {}
     )
 
-    precio = career_info.get("precio", "999")
+    precio = career_info.get("precio", "---")
     emoji = career_info.get("emoji", "🎓")
 
     response = response.replace("[CARRERA]", career.title())
